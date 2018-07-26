@@ -23,6 +23,7 @@ sh checkHandleCoordJob.sh  --对自动剔除异常coordinator定时任务功能�
 sh failoverDn.sh    -- 对failover datanode 备节点替换为主节点的测试
 sh failoverGtm.sh   -- 对failover gtm 备节点替换为主节点的测试
 sh flushHost.sh     -- 刷新节点host信息
+sh flushParam.sh     -- 刷新adbmgr端参数核对表mgr_parm信息
 
 sh lockCluster.sh  --集群锁测试
 
