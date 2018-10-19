@@ -3,7 +3,7 @@
 --
 --create table and index
 drop table if exists cursor_t1 cascade;
-psql:cursor_cn.sql:6: NOTICE:  table "cursor_t1" does not exist, skipping
+psql:sql/cursor.sql:6: NOTICE:  table "cursor_t1" does not exist, skipping
 DROP TABLE
 create table cursor_t1(id1 int, id2 int);
 CREATE TABLE
@@ -68,6 +68,111 @@ fetch 4 from c1;
    7 |  9994
 (4 rows)
 
+MOVE FORWARD ALL FROM c1;
+MOVE 4996
+MOVE FORWARD -5 FROM c1;
+MOVE 5
+fetch -4 from c1;
+ id1  | id2 
+------+-----
+ 9989 |  12
+ 9987 |  14
+ 9985 |  16
+ 9983 |  18
+(4 rows)
+
+fetch 0 from c1;
+ id1  | id2 
+------+-----
+ 9983 |  18
+(1 row)
+
+fetch 10 from c1;
+ id1  | id2 
+------+-----
+ 9985 |  16
+ 9987 |  14
+ 9989 |  12
+ 9991 |  10
+ 9993 |   8
+ 9995 |   6
+ 9997 |   4
+ 9999 |   2
+(8 rows)
+
+MOVE BACKWARD ALL FROM c1;
+MOVE 5000
+MOVE BACKWARD -10000 FROM c1;
+MOVE 5000
+fetch 3 from c1;
+ id1 | id2 
+-----+-----
+(0 rows)
+
+MOVE BACKWARD 1000 FROM c1;
+MOVE 1000
+fetch -4 from c1;
+ id1  | id2  
+------+------
+ 7999 | 2002
+ 7997 | 2004
+ 7995 | 2006
+ 7993 | 2008
+(4 rows)
+
+fetch 0 from c1;
+ id1  | id2  
+------+------
+ 7993 | 2008
+(1 row)
+
+fetch 10 from c1;
+ id1  | id2  
+------+------
+ 7995 | 2006
+ 7997 | 2004
+ 7999 | 2002
+ 8001 | 2000
+ 8003 | 1998
+ 8005 | 1996
+ 8007 | 1994
+ 8009 | 1992
+ 8011 | 1990
+ 8013 | 1988
+(10 rows)
+
+MOVE BACKWARD -100 FROM c1;
+MOVE 100
+fetch -4 from c1;
+ id1  | id2  
+------+------
+ 8211 | 1790
+ 8209 | 1792
+ 8207 | 1794
+ 8205 | 1796
+(4 rows)
+
+fetch 0 from c1;
+ id1  | id2  
+------+------
+ 8205 | 1796
+(1 row)
+
+fetch 10 from c1;
+ id1  | id2  
+------+------
+ 8207 | 1794
+ 8209 | 1792
+ 8211 | 1790
+ 8213 | 1788
+ 8215 | 1786
+ 8217 | 1784
+ 8219 | 1782
+ 8221 | 1780
+ 8223 | 1778
+ 8225 | 1776
+(10 rows)
+
 commit;
 COMMIT
 -- 2
@@ -127,6 +232,111 @@ fetch 4 from c1;
    7 |  9994
 (4 rows)
 
+MOVE FORWARD ALL FROM c1;
+MOVE 4996
+MOVE FORWARD -5 FROM c1;
+MOVE 5
+fetch -4 from c1;
+ id1  | id2 
+------+-----
+ 9989 |  12
+ 9987 |  14
+ 9985 |  16
+ 9983 |  18
+(4 rows)
+
+fetch 0 from c1;
+ id1  | id2 
+------+-----
+ 9983 |  18
+(1 row)
+
+fetch 10 from c1;
+ id1  | id2 
+------+-----
+ 9985 |  16
+ 9987 |  14
+ 9989 |  12
+ 9991 |  10
+ 9993 |   8
+ 9995 |   6
+ 9997 |   4
+ 9999 |   2
+(8 rows)
+
+MOVE BACKWARD ALL FROM c1;
+MOVE 5000
+MOVE BACKWARD -10000 FROM c1;
+MOVE 5000
+fetch 3 from c1;
+ id1 | id2 
+-----+-----
+(0 rows)
+
+MOVE BACKWARD 1000 FROM c1;
+MOVE 1000
+fetch -4 from c1;
+ id1  | id2  
+------+------
+ 7999 | 2002
+ 7997 | 2004
+ 7995 | 2006
+ 7993 | 2008
+(4 rows)
+
+fetch 0 from c1;
+ id1  | id2  
+------+------
+ 7993 | 2008
+(1 row)
+
+fetch 10 from c1;
+ id1  | id2  
+------+------
+ 7995 | 2006
+ 7997 | 2004
+ 7999 | 2002
+ 8001 | 2000
+ 8003 | 1998
+ 8005 | 1996
+ 8007 | 1994
+ 8009 | 1992
+ 8011 | 1990
+ 8013 | 1988
+(10 rows)
+
+MOVE BACKWARD -100 FROM c1;
+MOVE 100
+fetch -4 from c1;
+ id1  | id2  
+------+------
+ 8211 | 1790
+ 8209 | 1792
+ 8207 | 1794
+ 8205 | 1796
+(4 rows)
+
+fetch 0 from c1;
+ id1  | id2  
+------+------
+ 8205 | 1796
+(1 row)
+
+fetch 10 from c1;
+ id1  | id2  
+------+------
+ 8207 | 1794
+ 8209 | 1792
+ 8211 | 1790
+ 8213 | 1788
+ 8215 | 1786
+ 8217 | 1784
+ 8219 | 1782
+ 8221 | 1780
+ 8223 | 1778
+ 8225 | 1776
+(10 rows)
+
 commit;
 COMMIT
 -- 3
@@ -176,10 +386,42 @@ fetch 4 from c1;
 (4 rows)
 
 MOVE BACKWARD 100000 FROM c1;
-psql:cursor_cn.sql:54: ERROR:  cursor can only scan forward
+psql:sql/cursor.sql:87: ERROR:  cursor can only scan forward
 HINT:  Declare it with SCROLL option to enable backward scan.
 fetch 4 from c1;
-psql:cursor_cn.sql:55: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+psql:sql/cursor.sql:88: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+MOVE FORWARD ALL FROM c1;
+psql:sql/cursor.sql:89: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+MOVE FORWARD -5 FROM c1;
+psql:sql/cursor.sql:90: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+fetch -4 from c1;
+psql:sql/cursor.sql:91: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+fetch 0 from c1;
+psql:sql/cursor.sql:92: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+fetch 10 from c1;
+psql:sql/cursor.sql:93: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+MOVE BACKWARD ALL FROM c1;
+psql:sql/cursor.sql:94: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+MOVE BACKWARD -10000 FROM c1;
+psql:sql/cursor.sql:95: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+fetch 3 from c1;
+psql:sql/cursor.sql:96: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+MOVE BACKWARD 1000 FROM c1;
+psql:sql/cursor.sql:97: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+fetch -4 from c1;
+psql:sql/cursor.sql:98: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+fetch 0 from c1;
+psql:sql/cursor.sql:99: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+fetch 10 from c1;
+psql:sql/cursor.sql:100: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+MOVE BACKWARD -100 FROM c1;
+psql:sql/cursor.sql:101: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+fetch -4 from c1;
+psql:sql/cursor.sql:102: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+fetch 0 from c1;
+psql:sql/cursor.sql:103: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+fetch 10 from c1;
+psql:sql/cursor.sql:104: ERROR:  current transaction is aborted, commands ignored until end of transaction block
 commit;
 ROLLBACK
 -- 4
@@ -238,6 +480,139 @@ fetch 4 from c1;
    5 |  9996
    7 |  9994
 (4 rows)
+
+MOVE FORWARD ALL FROM c1;
+MOVE 4996
+MOVE FORWARD -5 FROM c1;
+MOVE 5
+fetch -4 from c1;
+ id1  | id2 
+------+-----
+ 9989 |  12
+ 9987 |  14
+ 9985 |  16
+ 9983 |  18
+(4 rows)
+
+fetch 0 from c1;
+ id1  | id2 
+------+-----
+ 9983 |  18
+(1 row)
+
+fetch 10 from c1;
+ id1  | id2 
+------+-----
+ 9985 |  16
+ 9987 |  14
+ 9989 |  12
+ 9991 |  10
+ 9993 |   8
+ 9995 |   6
+ 9997 |   4
+ 9999 |   2
+(8 rows)
+
+MOVE BACKWARD ALL FROM c1;
+MOVE 5000
+MOVE BACKWARD -10000 FROM c1;
+MOVE 5000
+fetch 3 from c1;
+ id1 | id2 
+-----+-----
+(0 rows)
+
+MOVE BACKWARD 1000 FROM c1;
+MOVE 1000
+fetch -4 from c1;
+ id1  | id2  
+------+------
+ 7999 | 2002
+ 7997 | 2004
+ 7995 | 2006
+ 7993 | 2008
+(4 rows)
+
+fetch 0 from c1;
+ id1  | id2  
+------+------
+ 7993 | 2008
+(1 row)
+
+fetch 10 from c1;
+ id1  | id2  
+------+------
+ 7995 | 2006
+ 7997 | 2004
+ 7999 | 2002
+ 8001 | 2000
+ 8003 | 1998
+ 8005 | 1996
+ 8007 | 1994
+ 8009 | 1992
+ 8011 | 1990
+ 8013 | 1988
+(10 rows)
+
+MOVE BACKWARD -100 FROM c1;
+MOVE 100
+fetch -4 from c1;
+ id1  | id2  
+------+------
+ 8211 | 1790
+ 8209 | 1792
+ 8207 | 1794
+ 8205 | 1796
+(4 rows)
+
+fetch 0 from c1;
+ id1  | id2  
+------+------
+ 8205 | 1796
+(1 row)
+
+fetch 10 from c1;
+ id1  | id2  
+------+------
+ 8207 | 1794
+ 8209 | 1792
+ 8211 | 1790
+ 8213 | 1788
+ 8215 | 1786
+ 8217 | 1784
+ 8219 | 1782
+ 8221 | 1780
+ 8223 | 1778
+ 8225 | 1776
+(10 rows)
+
+commit;
+COMMIT
+-- 5
+delete from cursor_t1;
+DELETE 10000
+begin;
+BEGIN
+DECLARE c1  SCROLL CURSOR FOR SELECT * from cursor_t1 WHERE id1 %2 !=0 order by 1,2;
+DECLARE CURSOR
+fetch 2 from c1;
+ id1 | id2 
+-----+-----
+(0 rows)
+
+MOVE FORWARD ALL FROM c1;
+MOVE 0
+fetch 2 from c1;
+ id1 | id2 
+-----+-----
+(0 rows)
+
+MOVE BACKWARD ALL FROM c1;
+MOVE 0
+fetch 2 from c1;
+ id1 | id2 
+-----+-----
+(0 rows)
 
 commit;
 COMMIT
