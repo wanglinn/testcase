@@ -1,0 +1,246 @@
+-- https://www.postgresql.org/docs/10/static/plpgsql-cursors.html
+--
+--
+--create table and index
+drop table if exists cursor_t1 cascade;
+psql:cursor_cn.sql:6: NOTICE:  table "cursor_t1" does not exist, skipping
+DROP TABLE
+create table cursor_t1(id1 int, id2 int);
+CREATE TABLE
+insert into cursor_t1 select generate_series(1,10000), generate_series(10000, 1, -1);
+INSERT 0 10000
+create index i_cursor_t1 on cursor_t1(id1);
+CREATE INDEX
+-- 1
+begin;
+BEGIN
+DECLARE c1  CURSOR FOR SELECT * from cursor_t1 WHERE id1 %2 !=0 order by 1,2;
+DECLARE CURSOR
+fetch 4 from c1;
+ id1 |  id2  
+-----+-------
+   1 | 10000
+   3 |  9998
+   5 |  9996
+   7 |  9994
+(4 rows)
+
+MOVE FORWARD ALL FROM c1;
+MOVE 4996
+fetch 2 from c1;
+ id1 | id2 
+-----+-----
+(0 rows)
+
+MOVE BACKWARD ALL FROM c1;
+MOVE 5000
+fetch 3 from c1;
+ id1 |  id2  
+-----+-------
+   1 | 10000
+   3 |  9998
+   5 |  9996
+(3 rows)
+
+MOVE BACKWARD ALL FROM c1;
+MOVE 2
+MOVE BACKWARD ALL FROM c1;
+MOVE 0
+MOVE FORWARD 10 FROM c1;
+MOVE 10
+fetch 4 from c1;
+ id1 | id2  
+-----+------
+  21 | 9980
+  23 | 9978
+  25 | 9976
+  27 | 9974
+(4 rows)
+
+MOVE BACKWARD 100000 FROM c1;
+MOVE 13
+fetch 4 from c1;
+ id1 |  id2  
+-----+-------
+   1 | 10000
+   3 |  9998
+   5 |  9996
+   7 |  9994
+(4 rows)
+
+commit;
+COMMIT
+-- 2
+begin;
+BEGIN
+DECLARE c1  SCROLL CURSOR FOR SELECT * from cursor_t1 WHERE id1 %2 !=0 order by 1,2;
+DECLARE CURSOR
+fetch 4 from c1;
+ id1 |  id2  
+-----+-------
+   1 | 10000
+   3 |  9998
+   5 |  9996
+   7 |  9994
+(4 rows)
+
+MOVE FORWARD ALL FROM c1;
+MOVE 4996
+fetch 2 from c1;
+ id1 | id2 
+-----+-----
+(0 rows)
+
+MOVE BACKWARD ALL FROM c1;
+MOVE 5000
+fetch 3 from c1;
+ id1 |  id2  
+-----+-------
+   1 | 10000
+   3 |  9998
+   5 |  9996
+(3 rows)
+
+MOVE BACKWARD ALL FROM c1;
+MOVE 2
+MOVE BACKWARD ALL FROM c1;
+MOVE 0
+MOVE FORWARD 10 FROM c1;
+MOVE 10
+fetch 4 from c1;
+ id1 | id2  
+-----+------
+  21 | 9980
+  23 | 9978
+  25 | 9976
+  27 | 9974
+(4 rows)
+
+MOVE BACKWARD 100000 FROM c1;
+MOVE 13
+fetch 4 from c1;
+ id1 |  id2  
+-----+-------
+   1 | 10000
+   3 |  9998
+   5 |  9996
+   7 |  9994
+(4 rows)
+
+commit;
+COMMIT
+-- 3
+begin;
+BEGIN
+DECLARE c1  NO SCROLL CURSOR FOR SELECT * from cursor_t1 WHERE id1 %2 !=0 order by 1,2;
+DECLARE CURSOR
+fetch 4 from c1;
+ id1 |  id2  
+-----+-------
+   1 | 10000
+   3 |  9998
+   5 |  9996
+   7 |  9994
+(4 rows)
+
+MOVE FORWARD ALL FROM c1;
+MOVE 4996
+fetch 2 from c1;
+ id1 | id2 
+-----+-----
+(0 rows)
+
+MOVE BACKWARD ALL FROM c1;
+MOVE 5000
+fetch 3 from c1;
+ id1 |  id2  
+-----+-------
+   1 | 10000
+   3 |  9998
+   5 |  9996
+(3 rows)
+
+MOVE BACKWARD ALL FROM c1;
+MOVE 2
+MOVE BACKWARD ALL FROM c1;
+MOVE 0
+MOVE FORWARD 10 FROM c1;
+MOVE 10
+fetch 4 from c1;
+ id1 | id2  
+-----+------
+  21 | 9980
+  23 | 9978
+  25 | 9976
+  27 | 9974
+(4 rows)
+
+MOVE BACKWARD 100000 FROM c1;
+psql:cursor_cn.sql:54: ERROR:  cursor can only scan forward
+HINT:  Declare it with SCROLL option to enable backward scan.
+fetch 4 from c1;
+psql:cursor_cn.sql:55: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+commit;
+ROLLBACK
+-- 4
+begin;
+BEGIN
+DECLARE c1  SCROLL CURSOR FOR SELECT * from cursor_t1 WHERE id1 %2 !=0 order by 1,2;
+DECLARE CURSOR
+fetch 4 from c1;
+ id1 |  id2  
+-----+-------
+   1 | 10000
+   3 |  9998
+   5 |  9996
+   7 |  9994
+(4 rows)
+
+MOVE FORWARD ALL FROM c1;
+MOVE 4996
+fetch 2 from c1;
+ id1 | id2 
+-----+-----
+(0 rows)
+
+MOVE BACKWARD ALL FROM c1;
+MOVE 5000
+fetch 3 from c1;
+ id1 |  id2  
+-----+-------
+   1 | 10000
+   3 |  9998
+   5 |  9996
+(3 rows)
+
+MOVE BACKWARD ALL FROM c1;
+MOVE 2
+MOVE BACKWARD ALL FROM c1;
+MOVE 0
+MOVE FORWARD 10 FROM c1;
+MOVE 10
+fetch 4 from c1;
+ id1 | id2  
+-----+------
+  21 | 9980
+  23 | 9978
+  25 | 9976
+  27 | 9974
+(4 rows)
+
+MOVE BACKWARD 100000 FROM c1;
+MOVE 13
+fetch 4 from c1;
+ id1 |  id2  
+-----+-------
+   1 | 10000
+   3 |  9998
+   5 |  9996
+   7 |  9994
+(4 rows)
+
+commit;
+COMMIT
+-- drop node
+drop table cursor_t1 cascade;
+DROP TABLE
