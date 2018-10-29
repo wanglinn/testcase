@@ -7,8 +7,12 @@ alter table pt attach partition pt1 for values from (1) to (11);
 alter table pt attach partition pt2 for values from (11) to (21);
 
 
-create table pt11 partition of pt1 for values from (1) to (5);
-create table pt12 partition of pt2 for values from (11) to (15);
+create table pt11(c date, a int,b char);
+create table pt12(b char, c date, a int);
+alter table pt1 attach partition pt11 for values from (1) to (5);
+alter table pt2 attach partition pt12 for values from (11) to (15);
+--create table pt11 partition of pt1 for values from (1) to (5);
+--create table pt12 partition of pt2 for values from (11) to (15);
 
 create view ptv as select * from pt;
 
@@ -34,8 +38,12 @@ create table pt2 (c date, d text, a int,b char) partition by list(d);
 alter table pt attach partition pt1 for values in ('pt1');
 alter table pt attach partition pt2 for values in ('pt2');
 
-create table pt11 partition of pt1 for values in ('pt1');
-create table pt12 partition of pt2 for values in ('pt2');
+create table pt11(c date, d text, a int,b char);
+create table pt12(b char, c date, d text, a int);
+alter table pt1 attach partition pt11 for values in ('pt1');
+alter table pt2 attach partition pt12 for values in ('pt2');
+--create table pt11 partition of pt1 for values in ('pt1');
+--create table pt12 partition of pt2 for values in ('pt2');
 
 create view ptv as select * from pt;
 

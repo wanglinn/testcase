@@ -9,10 +9,16 @@ alter table pt attach partition pt1 for values from (1) to (11);
 ALTER TABLE
 alter table pt attach partition pt2 for values from (11) to (21);
 ALTER TABLE
-create table pt11 partition of pt1 for values from (1) to (5);
+create table pt11(c date, a int,b char);
 CREATE TABLE
-create table pt12 partition of pt2 for values from (11) to (15);
+create table pt12(b char, c date, a int);
 CREATE TABLE
+alter table pt1 attach partition pt11 for values from (1) to (5);
+ALTER TABLE
+alter table pt2 attach partition pt12 for values from (11) to (15);
+ALTER TABLE
+--create table pt11 partition of pt1 for values from (1) to (5);
+--create table pt12 partition of pt2 for values from (11) to (15);
 create view ptv as select * from pt;
 CREATE VIEW
 insert into ptv values(1,'2', '2018-10-28');
@@ -39,25 +45,25 @@ select * from pt2;
 (1 row)
 
 select * from pt11;
- b |     c      | a 
----+------------+---
- 2 | 2018-10-28 | 1
+     c      | a | b 
+------------+---+---
+ 2018-10-28 | 1 | 2
 (1 row)
 
 select * from pt12;
-     c      | a  | b 
-------------+----+---
- 2018-10-28 | 11 | 2
+ b |     c      | a  
+---+------------+----
+ 2 | 2018-10-28 | 11
 (1 row)
 
 insert into ptv values(6,'2', '2018-10-28');
-psql:parttable.sql:24: ERROR:  no partition of relation "pt1" found for row
+psql:parttable.sql:28: ERROR:  no partition of relation "pt1" found for row
 DETAIL:  Partition key of the failing row contains (a) = (6).
 insert into ptv values(16,'2', '2018-10-28');
-psql:parttable.sql:25: ERROR:  no partition of relation "pt2" found for row
+psql:parttable.sql:29: ERROR:  no partition of relation "pt2" found for row
 DETAIL:  Partition key of the failing row contains (a) = (16).
 drop table pt cascade;
-psql:parttable.sql:27: NOTICE:  drop cascades to view ptv
+psql:parttable.sql:31: NOTICE:  drop cascades to view ptv
 DROP TABLE
 --test case 2
 create table pt (a int,b char, c date, d text) partition by list(d);
@@ -70,10 +76,16 @@ alter table pt attach partition pt1 for values in ('pt1');
 ALTER TABLE
 alter table pt attach partition pt2 for values in ('pt2');
 ALTER TABLE
-create table pt11 partition of pt1 for values in ('pt1');
+create table pt11(c date, d text, a int,b char);
 CREATE TABLE
-create table pt12 partition of pt2 for values in ('pt2');
+create table pt12(b char, c date, d text, a int);
 CREATE TABLE
+alter table pt1 attach partition pt11 for values in ('pt1');
+ALTER TABLE
+alter table pt2 attach partition pt12 for values in ('pt2');
+ALTER TABLE
+--create table pt11 partition of pt1 for values in ('pt1');
+--create table pt12 partition of pt2 for values in ('pt2');
 create view ptv as select * from pt;
 CREATE VIEW
 insert into ptv values(1,'2', '2018-10-28', 'pt1');
@@ -100,17 +112,17 @@ select * from pt2;
 (1 row)
 
 select * from pt11;
- b |     c      |  d  | a 
----+------------+-----+---
- 2 | 2018-10-28 | pt1 | 1
+     c      |  d  | a | b 
+------------+-----+---+---
+ 2018-10-28 | pt1 | 1 | 2
 (1 row)
 
 select * from pt12;
-     c      |  d  | a | b 
-------------+-----+---+---
- 2018-10-28 | pt2 | 6 | 2
+ b |     c      |  d  | a 
+---+------------+-----+---
+ 2 | 2018-10-28 | pt2 | 6
 (1 row)
 
 drop table pt cascade;
-psql:parttable.sql:51: NOTICE:  drop cascades to view ptv
+psql:parttable.sql:59: NOTICE:  drop cascades to view ptv
 DROP TABLE
