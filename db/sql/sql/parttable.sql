@@ -119,3 +119,30 @@ with ins (a) as
 
 drop table mlparted cascade;
 
+-- test case 7
+create table mlparted (a int, b int) partition by range (a, b);
+create table mlparted1 (b int not null, a int not null) partition by range ((b+0));
+create table mlparted11 (like mlparted1);
+
+alter table mlparted1 attach partition mlparted11 for values from (2) to (5);
+alter table mlparted attach partition mlparted1 for values from (1, 2) to (1, 10);
+
+-- have a BR trigger modify the row such that the check_b is violated
+create function mlparted11_trig_fn()
+returns trigger AS
+$$
+begin
+  NEW.b := 4;
+  return NEW;
+end;
+$$
+language plpgsql;
+
+create trigger mlparted11_trig before insert ON mlparted11
+  for each row execute procedure mlparted11_trig_fn();
+
+insert into mlparted values (1, 2);
+select * from mlparted;
+
+drop table mlparted cascade;
+drop function mlparted11_trig_fn();
