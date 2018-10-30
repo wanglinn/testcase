@@ -126,3 +126,116 @@ select * from pt12;
 drop table pt cascade;
 psql:parttable.sql:59: NOTICE:  drop cascades to view ptv
 DROP TABLE
+-- test case 3
+create table mlparted (a int, b int) partition by range (b);
+CREATE TABLE
+create table mlparted1 (b int not null, a int not null) partition by range (b);
+CREATE TABLE
+create table mlparted11 (like mlparted1);
+CREATE TABLE
+alter table mlparted11 drop a;
+ALTER TABLE
+alter table mlparted11 add a int;
+ALTER TABLE
+alter table mlparted11 drop a;
+ALTER TABLE
+alter table mlparted11 add a int not null;
+ALTER TABLE
+alter table mlparted1 attach partition mlparted11 for values from (1) to (5);
+ALTER TABLE
+alter table mlparted attach partition mlparted1 for values from (1) to (10);
+ALTER TABLE
+with ins (a, b, c) as
+  (insert into mlparted (b, a) select 2 , 1  returning 3, *)
+  select * from ins; 
+ a | b | c 
+---+---+---
+ 3 | 1 | 2
+(1 row)
+
+drop table mlparted cascade;
+DROP TABLE
+-- test case 4
+create table mlparted (a int, b int) partition by range (b);
+CREATE TABLE
+create table mlparted1 (b int not null, a int not null);
+CREATE TABLE
+alter table mlparted1 drop a;
+ALTER TABLE
+alter table mlparted1 add a int;
+ALTER TABLE
+alter table mlparted1 drop a;
+ALTER TABLE
+alter table mlparted1 add a int not null;
+ALTER TABLE
+alter table mlparted attach partition mlparted1 for values from (1) to (5);
+ALTER TABLE
+with ins (a, b, c) as
+  (insert into mlparted (b, a) select 2 , 1  returning 3, *)
+  select * from ins; 
+ a | b | c 
+---+---+---
+ 3 | 1 | 2
+(1 row)
+
+drop table mlparted cascade;
+DROP TABLE
+--test case 5
+create table mlparted (a int, b int) partition by range (b);
+CREATE TABLE
+create table mlparted1 (a int, b int);
+CREATE TABLE
+alter table mlparted1 drop a;
+psql:parttable.sql:93: ERROR:  Distribution column cannot be dropped
+alter table mlparted1 add a int;
+psql:parttable.sql:94: ERROR:  column "a" of relation "mlparted1" already exists
+alter table mlparted1 drop a;
+psql:parttable.sql:95: ERROR:  Distribution column cannot be dropped
+alter table mlparted1 add a int;
+psql:parttable.sql:96: ERROR:  column "a" of relation "mlparted1" already exists
+alter table mlparted attach partition mlparted1 for values from (1) to (5);
+ALTER TABLE
+with ins (a, b, c) as
+  (insert into mlparted (b, a) select 2 , 1  returning 3, *)
+  select * from ins;
+ a | b | c 
+---+---+---
+ 3 | 1 | 2
+(1 row)
+
+ 
+drop table mlparted cascade;
+DROP TABLE
+-- test case 6
+create table mlparted (a int, b int) partition by range (b);
+CREATE TABLE
+create table mlparted1 (b int, a int);
+CREATE TABLE
+alter table mlparted1 drop a;
+ALTER TABLE
+alter table mlparted1 add a int;
+ALTER TABLE
+alter table mlparted1 drop a;
+ALTER TABLE
+alter table mlparted1 add a int;
+ALTER TABLE
+alter table mlparted attach partition mlparted1 for values from (1) to (5);
+ALTER TABLE
+with ins (a, b, c) as
+  (insert into mlparted (b, a) select 2 , 1  returning 3, *)
+  select * from ins;  
+ a | b | c 
+---+---+---
+ 3 | 1 | 2
+(1 row)
+
+with ins (a) as      
+  (insert into mlparted (b, a) select 2 , 1  returning 3)   
+  select * from ins;
+ a 
+---
+ 3
+(1 row)
+
+drop table mlparted cascade;
+DROP TABLE

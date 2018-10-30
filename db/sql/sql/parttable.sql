@@ -57,3 +57,65 @@ select * from pt11;
 select * from pt12;
 
 drop table pt cascade;
+
+-- test case 3
+create table mlparted (a int, b int) partition by range (b);
+create table mlparted1 (b int not null, a int not null) partition by range (b);
+create table mlparted11 (like mlparted1);
+alter table mlparted11 drop a;
+alter table mlparted11 add a int;
+alter table mlparted11 drop a;
+alter table mlparted11 add a int not null;
+alter table mlparted1 attach partition mlparted11 for values from (1) to (5);
+alter table mlparted attach partition mlparted1 for values from (1) to (10);
+with ins (a, b, c) as
+  (insert into mlparted (b, a) select 2 , 1  returning 3, *)
+  select * from ins; 
+
+drop table mlparted cascade;
+
+-- test case 4
+create table mlparted (a int, b int) partition by range (b);
+create table mlparted1 (b int not null, a int not null);
+alter table mlparted1 drop a;
+alter table mlparted1 add a int;
+alter table mlparted1 drop a;
+alter table mlparted1 add a int not null;
+alter table mlparted attach partition mlparted1 for values from (1) to (5);
+with ins (a, b, c) as
+  (insert into mlparted (b, a) select 2 , 1  returning 3, *)
+  select * from ins; 
+drop table mlparted cascade;
+
+--test case 5
+create table mlparted (a int, b int) partition by range (b);
+create table mlparted1 (a int, b int);
+alter table mlparted1 drop a;
+alter table mlparted1 add a int;
+alter table mlparted1 drop a;
+alter table mlparted1 add a int;
+alter table mlparted attach partition mlparted1 for values from (1) to (5);
+with ins (a, b, c) as
+  (insert into mlparted (b, a) select 2 , 1  returning 3, *)
+  select * from ins;
+ 
+drop table mlparted cascade;
+
+-- test case 6
+create table mlparted (a int, b int) partition by range (b);
+create table mlparted1 (b int, a int);
+alter table mlparted1 drop a;
+alter table mlparted1 add a int;
+alter table mlparted1 drop a;
+alter table mlparted1 add a int;
+alter table mlparted attach partition mlparted1 for values from (1) to (5);
+with ins (a, b, c) as
+  (insert into mlparted (b, a) select 2 , 1  returning 3, *)
+  select * from ins;  
+
+with ins (a) as      
+  (insert into mlparted (b, a) select 2 , 1  returning 3)   
+  select * from ins;
+
+drop table mlparted cascade;
+
