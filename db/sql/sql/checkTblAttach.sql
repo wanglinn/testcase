@@ -1,6 +1,7 @@
 -- testcase 1
 create table mlparted (a int, b int) partition by range (a, b) distribute by random(a,b);
 create table mlparted1 (b int not null, a int not null) distribute by random(b, a);
+--fail
 alter table mlparted attach partition mlparted1 for values from (1, 2) to (1, 10);
 drop table mlparted;
 drop table mlparted1;
@@ -15,6 +16,7 @@ drop table mlparted1;
 --testcase 3
 create table mlparted (a int, b int) partition by range (a, b) distribute by hash(a);
 create table mlparted1 (b int not null, a int not null) distribute by hash(b);
+--fail
 alter table mlparted attach partition mlparted1 for values from (1, 2) to (1, 10);
 drop table mlparted;
 drop table mlparted1;
@@ -29,6 +31,7 @@ drop table mlparted1;
 --testcase 5
 create table mlparted (a int, b int) partition by range (a, b) distribute by modulo(a);
 create table mlparted1 (b int not null, a int not null) distribute by modulo(b);
+--fail
 alter table mlparted attach partition mlparted1 for values from (1, 2) to (1, 10);
 drop table mlparted;
 drop table mlparted1;
@@ -43,6 +46,7 @@ drop table mlparted1;
 --testcase 7
 create table mlparted (a int, b int) partition by range (a, b) distribute by hashmap(a);
 create table mlparted1 (b int not null, a int not null) distribute by hashmap(b);
+--fail
 alter table mlparted attach partition mlparted1 for values from (1, 2) to (1, 10);
 drop table mlparted;
 drop table mlparted1;
@@ -69,18 +73,21 @@ STRICT;
 
 create table mlparted (a int, b int) partition by range (a, b) distribute by mydistributor(b);
 create table mlparted1 (b int not null, a int not null) distribute by mydistributor(a);
+--fail
 alter table mlparted attach partition mlparted1 for values from (1, 2) to (1, 10);
 drop table mlparted;
 drop table mlparted1;
 
 create table mlparted (a int, b int) partition by range (a, b) distribute by mydistributor(a, b);
 create table mlparted1 (b int not null, a int not null) distribute by mydistributor(a);
+--fail
 alter table mlparted attach partition mlparted1 for values from (1, 2) to (1, 10);
 drop table mlparted;
 drop table mlparted1;
 
 create table mlparted (a int, b int) partition by range (a, b) distribute by mydistributor(a,b);
 create table mlparted1 (b int not null, a int not null) distribute by mydistributor(b,a);
+--fail
 alter table mlparted attach partition mlparted1 for values from (1, 2) to (1, 10);
 drop table mlparted;
 drop table mlparted1;
@@ -108,6 +115,7 @@ STRICT;
 
 create table mlparted (a int, b int) partition by range (a, b) distribute by random(a,b);
 create table mlparted1 (b int not null, a int not null) distribute by mydistributor(a, b);
+--fail
 alter table mlparted attach partition mlparted1 for values from (1, 2) to (1, 10);
 drop table mlparted;
 drop table mlparted1;
@@ -117,6 +125,7 @@ drop function mydistributor(int, int);
 --testcase 11
 create table mlparted (a int, b int) partition by range (a, b) distribute by hash(b);
 create table mlparted1 (b int not null, a int not null) distribute by hashmap(a);
+--fail
 alter table mlparted attach partition mlparted1 for values from (1, 2) to (1, 10);
 drop table mlparted;
 drop table mlparted1;
@@ -124,6 +133,7 @@ drop table mlparted1;
 --testcase 12
 create table mlparted (a int, b int) partition by range (a, b) distribute by hash(b);
 create table mlparted1 (b int not null, a int not null) distribute by modulo(a);
+--fail
 alter table mlparted attach partition mlparted1 for values from (1, 2) to (1, 10);
 drop table mlparted;
 drop table mlparted1;
@@ -131,6 +141,7 @@ drop table mlparted1;
 --testcase 13
 create table mlparted (a int, b int) partition by range (a, b) distribute by replication;
 create table mlparted1 (b int not null, a int not null) distribute by modulo(a);
+--fail
 alter table mlparted attach partition mlparted1 for values from (1, 2) to (1, 10);
 drop table mlparted;
 drop table mlparted1;
@@ -145,6 +156,7 @@ drop table mlparted1;
 --testcase 15
 create table mlparted (a int, b int) partition by range (a, b);
 create table mlparted1 (a int not null, b int not null) to node (dn1);
+--fail
 alter table mlparted attach partition mlparted1 for values from (1, 2) to (1, 10);
 drop table mlparted;
 drop table mlparted1;
