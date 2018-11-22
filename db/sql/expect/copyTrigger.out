@@ -1,0 +1,184 @@
+-- testcase 1 : before insert   for each row
+create table test (a int, b text) partition by list (a);
+CREATE TABLE
+create table test_1 (a int, b text);
+CREATE TABLE
+create table test_2 (a int, b text);
+CREATE TABLE
+create or replace function tgcptbl_func() returns trigger as $$begin raise notice 'b: %', new.b; return NULL; end$$ language plpgsql;
+CREATE FUNCTION
+create trigger tg1 before insert on test_1 for each row execute procedure tgcptbl_func();
+CREATE TRIGGER
+create trigger tg2 before insert on test_2 for each row execute procedure tgcptbl_func();
+CREATE TRIGGER
+alter table test attach partition test_1 for values in (1);
+ALTER TABLE
+alter table test attach partition test_2 for values in (2);
+ALTER TABLE
+insert into test values (1, 'foo'), (2, 'bar');
+psql:copyTrigger.sql:12: NOTICE:  b: foo
+psql:copyTrigger.sql:12: NOTICE:  b: bar
+INSERT 0 0
+copy test from stdout;
+psql:copyTrigger.sql:17: NOTICE:  b: a
+psql:copyTrigger.sql:17: NOTICE:  b: b
+COPY 0
+select * from test;
+ a | b 
+---+---
+(0 rows)
+
+select * from test_1;
+ a | b 
+---+---
+(0 rows)
+
+select * from test_2;
+ a | b 
+---+---
+(0 rows)
+
+drop table test cascade;
+DROP TABLE
+-- test case 2: after insert for each row
+create table test (a int, b text) partition by list (a);
+CREATE TABLE
+create table test_1 (a int, b text);
+CREATE TABLE
+create table test_2 (a int, b text);
+CREATE TABLE
+create or replace function tgcptbl_func() returns trigger as $$begin raise notice 'b: %', new.b; return NULL; end$$ language plpgsql;
+CREATE FUNCTION
+create trigger tg1 after insert on test_1 for each row execute procedure tgcptbl_func();
+CREATE TRIGGER
+create trigger tg2 after insert on test_2 for each row execute procedure tgcptbl_func();
+CREATE TRIGGER
+alter table test attach partition test_1 for values in (1);
+ALTER TABLE
+alter table test attach partition test_2 for values in (2);
+ALTER TABLE
+insert into test values (1, 'foo'), (2, 'bar');
+psql:copyTrigger.sql:36: NOTICE:  b: foo
+psql:copyTrigger.sql:36: NOTICE:  b: bar
+INSERT 0 2
+copy test from stdout;
+psql:copyTrigger.sql:41: NOTICE:  b: a
+psql:copyTrigger.sql:41: NOTICE:  b: b
+COPY 2
+select * from test;
+ a |  b  
+---+-----
+ 1 | foo
+ 1 | a
+ 2 | bar
+ 2 | b
+(4 rows)
+
+select * from test_1;
+ a |  b  
+---+-----
+ 1 | foo
+ 1 | a
+(2 rows)
+
+select * from test_2;
+ a |  b  
+---+-----
+ 2 | bar
+ 2 | b
+(2 rows)
+
+drop table test cascade;
+DROP TABLE
+-- test case 3: before insert for each statement
+create table test (a int, b text) partition by list (a);
+CREATE TABLE
+create table test_1 (a int, b text);
+CREATE TABLE
+create table test_2 (a int, b text);
+CREATE TABLE
+create or replace function tgcptbl_func() returns trigger as $$begin raise notice 'b: %', new.b; return NULL; end$$ language plpgsql;
+CREATE FUNCTION
+create trigger tg1 before insert on test_1 for each statement execute procedure tgcptbl_func();
+CREATE TRIGGER
+create trigger tg2 before insert on test_2 for each statement execute procedure tgcptbl_func();
+CREATE TRIGGER
+alter table test attach partition test_1 for values in (1);
+ALTER TABLE
+alter table test attach partition test_2 for values in (2);
+ALTER TABLE
+insert into test values (1, 'foo'), (2, 'bar');
+INSERT 0 2
+copy test from stdout;
+COPY 2
+select * from test;
+ a |  b  
+---+-----
+ 1 | foo
+ 1 | a
+ 2 | bar
+ 2 | b
+(4 rows)
+
+select * from test_1;
+ a |  b  
+---+-----
+ 1 | foo
+ 1 | a
+(2 rows)
+
+select * from test_2;
+ a |  b  
+---+-----
+ 2 | bar
+ 2 | b
+(2 rows)
+
+drop table test cascade;
+DROP TABLE
+-- test case 4: after insert for each statement
+create table test (a int, b text) partition by list (a);
+CREATE TABLE
+create table test_1 (a int, b text);
+CREATE TABLE
+create table test_2 (a int, b text);
+CREATE TABLE
+create or replace function tgcptbl_func() returns trigger as $$begin raise notice 'b: %', new.b; return NULL; end$$ language plpgsql;
+CREATE FUNCTION
+create trigger tg1 after insert on test_1 for each statement execute procedure tgcptbl_func();
+CREATE TRIGGER
+create trigger tg2 after insert on test_2 for each statement execute procedure tgcptbl_func();
+CREATE TRIGGER
+alter table test attach partition test_1 for values in (1);
+ALTER TABLE
+alter table test attach partition test_2 for values in (2);
+ALTER TABLE
+insert into test values (1, 'foo'), (2, 'bar');
+INSERT 0 2
+copy test from stdout;
+COPY 2
+select * from test;
+ a |  b  
+---+-----
+ 1 | foo
+ 1 | a
+ 2 | bar
+ 2 | b
+(4 rows)
+
+select * from test_1;
+ a |  b  
+---+-----
+ 1 | foo
+ 1 | a
+(2 rows)
+
+select * from test_2;
+ a |  b  
+---+-----
+ 2 | bar
+ 2 | b
+(2 rows)
+
+drop table test cascade;
+DROP TABLE
