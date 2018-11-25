@@ -22,7 +22,7 @@ select * from test;
 select * from test_1;
 select * from test_2;
 drop table test cascade;
-
+drop function if exists tgcptbl_func();
 
 
 -- testcase 2: after insert for each row
@@ -46,7 +46,7 @@ select * from test;
 select * from test_1;
 select * from test_2;
 drop table test cascade;
-
+drop function if exists tgcptbl_func();
 
 
 -- testcase 3: before insert for each statement
@@ -70,7 +70,7 @@ select * from test;
 select * from test_1;
 select * from test_2;
 drop table test cascade;
-
+drop function if exists tgcptbl_func();
 
 -- testcase 4: after insert for each statement
 
@@ -93,7 +93,7 @@ select * from test;
 select * from test_1;
 select * from test_2;
 drop table test cascade;
-
+drop function if exists tgcptbl_func();
 
 -- no part table
 
