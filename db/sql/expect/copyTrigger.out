@@ -192,6 +192,198 @@ drop table test cascade;
 DROP TABLE
 drop function if exists tgcptbl_func();
 DROP FUNCTION
+-- testcase 5 : before insert   for each row
+create table test (a int, b text) partition by list (a);
+CREATE TABLE
+create table test_1 (b text, a int) distribute by hash(a);
+CREATE TABLE
+create table test_2 (b text, a int) distribute by hash(a);
+CREATE TABLE
+create or replace function tgcptbl_func() returns trigger as $$begin raise notice 'b: %', new.b; return NULL; end$$ language plpgsql;
+CREATE FUNCTION
+create trigger tg1 before insert on test_1 for each row execute procedure tgcptbl_func();
+CREATE TRIGGER
+create trigger tg2 before insert on test_2 for each row execute procedure tgcptbl_func();
+CREATE TRIGGER
+alter table test attach partition test_1 for values in (1);
+ALTER TABLE
+alter table test attach partition test_2 for values in (2);
+ALTER TABLE
+insert into test values (1, 'foo'), (2, 'bar');  -- insert none
+psql:copyTrigger.sql:109: NOTICE:  b: foo
+psql:copyTrigger.sql:109: NOTICE:  b: bar
+INSERT 0 0
+copy test from stdout;  -- copy none
+psql:copyTrigger.sql:114: NOTICE:  b: a
+psql:copyTrigger.sql:114: NOTICE:  b: b
+COPY 0
+select * from test;
+ a | b 
+---+---
+(0 rows)
+
+select * from test_1;
+ b | a 
+---+---
+(0 rows)
+
+select * from test_2;
+ b | a 
+---+---
+(0 rows)
+
+drop table test cascade;
+DROP TABLE
+drop function if exists tgcptbl_func();
+DROP FUNCTION
+-- testcase 6: after insert for each row
+create table test (a int, b text) partition by list (a);
+CREATE TABLE
+create table test_1 (b text, a int) distribute by hash(a);
+CREATE TABLE
+create table test_2 (b text, a int) distribute by hash(a);
+CREATE TABLE
+create or replace function tgcptbl_func() returns trigger as $$begin raise notice 'b: %', new.b; return NULL; end$$ language plpgsql;
+CREATE FUNCTION
+create trigger tg1 after insert on test_1 for each row execute procedure tgcptbl_func();
+CREATE TRIGGER
+create trigger tg2 after insert on test_2 for each row execute procedure tgcptbl_func();
+CREATE TRIGGER
+alter table test attach partition test_1 for values in (1);
+ALTER TABLE
+alter table test attach partition test_2 for values in (2);
+ALTER TABLE
+insert into test values (1, 'foo'), (2, 'bar');
+psql:copyTrigger.sql:133: NOTICE:  b: foo
+psql:copyTrigger.sql:133: NOTICE:  b: bar
+INSERT 0 2
+copy test from stdout;
+psql:copyTrigger.sql:138: NOTICE:  b: a
+psql:copyTrigger.sql:138: NOTICE:  b: b
+COPY 2
+select * from test;
+ a |  b  
+---+-----
+ 1 | foo
+ 1 | a
+ 2 | bar
+ 2 | b
+(4 rows)
+
+select * from test_1;
+  b  | a 
+-----+---
+ foo | 1
+ a   | 1
+(2 rows)
+
+select * from test_2;
+  b  | a 
+-----+---
+ bar | 2
+ b   | 2
+(2 rows)
+
+drop table test cascade;
+DROP TABLE
+drop function if exists tgcptbl_func();
+DROP FUNCTION
+-- testcase 7: before insert for each statement
+create table test (a int, b text) partition by list (a);
+CREATE TABLE
+create table test_1 (b text, a int) distribute by hash(a);
+CREATE TABLE
+create table test_2 (b text, a int) distribute by hash(a);
+CREATE TABLE
+create or replace function tgcptbl_func() returns trigger as $$begin raise notice 'b: %', new.b; return NULL; end$$ language plpgsql;
+CREATE FUNCTION
+create trigger tg1 before insert on test_1 for each statement execute procedure tgcptbl_func();
+CREATE TRIGGER
+create trigger tg2 before insert on test_2 for each statement execute procedure tgcptbl_func();
+CREATE TRIGGER
+alter table test attach partition test_1 for values in (1);
+ALTER TABLE
+alter table test attach partition test_2 for values in (2);
+ALTER TABLE
+insert into test values (1, 'foo'), (2, 'bar');  -- none notice
+INSERT 0 2
+copy test from stdout;  -- none notice
+COPY 2
+select * from test;
+ a |  b  
+---+-----
+ 1 | foo
+ 1 | a
+ 2 | bar
+ 2 | b
+(4 rows)
+
+select * from test_1;
+  b  | a 
+-----+---
+ foo | 1
+ a   | 1
+(2 rows)
+
+select * from test_2;
+  b  | a 
+-----+---
+ bar | 2
+ b   | 2
+(2 rows)
+
+drop table test cascade;
+DROP TABLE
+drop function if exists tgcptbl_func();
+DROP FUNCTION
+-- testcase 8: after insert for each statement
+create table test (a int, b text) partition by list (a);
+CREATE TABLE
+create table test_1 (b text, a int) distribute by hash(a);
+CREATE TABLE
+create table test_2 (b text, a int) distribute by hash(a);
+CREATE TABLE
+create or replace function tgcptbl_func() returns trigger as $$begin raise notice 'b: %', new.b; return NULL; end$$ language plpgsql;
+CREATE FUNCTION
+create trigger tg1 after insert on test_1 for each statement execute procedure tgcptbl_func();
+CREATE TRIGGER
+create trigger tg2 after insert on test_2 for each statement execute procedure tgcptbl_func();
+CREATE TRIGGER
+alter table test attach partition test_1 for values in (1);
+ALTER TABLE
+alter table test attach partition test_2 for values in (2);
+ALTER TABLE
+insert into test values (1, 'foo'), (2, 'bar');  -- none notice
+INSERT 0 2
+copy test from stdout;  -- none notice
+COPY 2
+select * from test;
+ a |  b  
+---+-----
+ 1 | foo
+ 1 | a
+ 2 | bar
+ 2 | b
+(4 rows)
+
+select * from test_1;
+  b  | a 
+-----+---
+ foo | 1
+ a   | 1
+(2 rows)
+
+select * from test_2;
+  b  | a 
+-----+---
+ bar | 2
+ b   | 2
+(2 rows)
+
+drop table test cascade;
+DROP TABLE
+drop function if exists tgcptbl_func();
+DROP FUNCTION
 -- no part table
 -- testcase 1      before insert
 CREATE TABLE emp (
@@ -212,10 +404,10 @@ CREATE TRIGGER emp_stamp BEFORE INSERT ON emp
     FOR EACH ROW EXECUTE PROCEDURE emp_stamp();
 CREATE TRIGGER
 insert into emp values(1,2);
-psql:copyTrigger.sql:120: NOTICE:  b: 12
+psql:copyTrigger.sql:217: NOTICE:  b: 12
 INSERT 0 1
 copy emp from stdout;
-psql:copyTrigger.sql:123: NOTICE:  b: 14
+psql:copyTrigger.sql:220: NOTICE:  b: 14
 COPY 1
 select * from emp;
  a  | b  
@@ -247,10 +439,10 @@ CREATE TRIGGER emp_stamp AFTER insert ON emp
     FOR EACH ROW EXECUTE PROCEDURE emp_stamp();
 CREATE TRIGGER
 insert into emp values(1,2);
-psql:copyTrigger.sql:150: NOTICE:  b: 12
+psql:copyTrigger.sql:247: NOTICE:  b: 12
 INSERT 0 1
 copy emp from stdout;
-psql:copyTrigger.sql:153: NOTICE:  b: 14
+psql:copyTrigger.sql:250: NOTICE:  b: 14
 COPY 1
 select * from emp;
  a | b 
@@ -280,10 +472,10 @@ CREATE TRIGGER emp_stamp BEFORE insert ON emp
     FOR EACH statement EXECUTE PROCEDURE emp_stamp();
 CREATE TRIGGER
 insert into emp values(1,2);
-psql:copyTrigger.sql:178: NOTICE:  b: 2
+psql:copyTrigger.sql:275: NOTICE:  b: 2
 INSERT 0 1
 copy emp from stdout;
-psql:copyTrigger.sql:181: NOTICE:  b: 2
+psql:copyTrigger.sql:278: NOTICE:  b: 2
 COPY 1
 select * from emp;
  a | b 
@@ -313,10 +505,10 @@ CREATE TRIGGER emp_stamp AFTER insert ON emp
     FOR EACH statement EXECUTE PROCEDURE emp_stamp();
 CREATE TRIGGER
 insert into emp values(1,2);
-psql:copyTrigger.sql:205: NOTICE:  b: 2
+psql:copyTrigger.sql:302: NOTICE:  b: 2
 INSERT 0 1
 copy emp from stdout;
-psql:copyTrigger.sql:208: NOTICE:  b: 2
+psql:copyTrigger.sql:305: NOTICE:  b: 2
 COPY 1
 select * from emp;
  a | b 
@@ -346,11 +538,11 @@ CREATE TRIGGER emp_stamp BEFORE insert ON emp
     FOR EACH statement EXECUTE PROCEDURE emp_stamp();
 CREATE TRIGGER
 insert into emp values(1,2);
-psql:copyTrigger.sql:233: ERROR:  record "new" is not assigned yet
+psql:copyTrigger.sql:330: ERROR:  record "new" is not assigned yet
 DETAIL:  The tuple structure of a not-yet-assigned record is indeterminate.
 CONTEXT:  PL/pgSQL function emp_stamp() line 3 at RAISE
 copy emp from stdout;
-psql:copyTrigger.sql:236: ERROR:  record "new" is not assigned yet
+psql:copyTrigger.sql:333: ERROR:  record "new" is not assigned yet
 DETAIL:  The tuple structure of a not-yet-assigned record is indeterminate.
 CONTEXT:  PL/pgSQL function emp_stamp() line 3 at RAISE
 select * from emp;
@@ -379,11 +571,11 @@ CREATE TRIGGER emp_stamp AFTER insert ON emp
     FOR EACH statement EXECUTE PROCEDURE emp_stamp();
 CREATE TRIGGER
 insert into emp values(1,2);
-psql:copyTrigger.sql:260: ERROR:  record "new" is not assigned yet
+psql:copyTrigger.sql:357: ERROR:  record "new" is not assigned yet
 DETAIL:  The tuple structure of a not-yet-assigned record is indeterminate.
 CONTEXT:  PL/pgSQL function emp_stamp() line 3 at RAISE
 copy emp from stdout;
-psql:copyTrigger.sql:263: ERROR:  record "new" is not assigned yet
+psql:copyTrigger.sql:360: ERROR:  record "new" is not assigned yet
 DETAIL:  The tuple structure of a not-yet-assigned record is indeterminate.
 CONTEXT:  PL/pgSQL function emp_stamp() line 3 at RAISE
 select * from emp;
