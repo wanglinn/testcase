@@ -1,3 +1,6 @@
+--  part table
+--
+
 -- testcase 1 : before insert   for each row
 
 create table test (a int, b text) partition by list (a);
@@ -22,7 +25,7 @@ drop table test cascade;
 
 
 
--- test case 2: after insert for each row
+-- testcase 2: after insert for each row
 
 create table test (a int, b text) partition by list (a);
 create table test_1 (a int, b text);
@@ -46,7 +49,7 @@ drop table test cascade;
 
 
 
--- test case 3: before insert for each statement
+-- testcase 3: before insert for each statement
 
 create table test (a int, b text) partition by list (a);
 create table test_1 (a int, b text);
@@ -69,7 +72,7 @@ select * from test_2;
 drop table test cascade;
 
 
--- test case 4: after insert for each statement
+-- testcase 4: after insert for each statement
 
 create table test (a int, b text) partition by list (a);
 create table test_1 (a int, b text);
@@ -91,3 +94,174 @@ select * from test_1;
 select * from test_2;
 drop table test cascade;
 
+
+-- no part table
+
+-- testcase 1      before insert
+CREATE TABLE emp (
+    a int,
+	b int
+);
+
+
+CREATE OR REPLACE FUNCTION emp_stamp() RETURNS trigger AS $emp_stamp$
+    BEGIN
+        NEW.a := NEW.a+10;
+        NEW.b := NEW.b+10;
+		raise notice 'b: %', new.b;
+        RETURN NEW;
+    END;
+$emp_stamp$ LANGUAGE plpgsql;
+
+
+CREATE TRIGGER emp_stamp BEFORE INSERT ON emp
+    FOR EACH ROW EXECUTE PROCEDURE emp_stamp();
+
+insert into emp values(1,2);
+copy emp from stdout;
+3	4
+\.
+
+select * from emp;
+drop table emp;
+drop function if exists emp_stamp();
+
+
+-- testcase 2      after insert
+
+CREATE TABLE emp (
+    a int,
+	b int
+);
+
+CREATE OR REPLACE FUNCTION emp_stamp() RETURNS trigger AS $emp_stamp$
+    BEGIN
+        NEW.a := NEW.a+10;
+        NEW.b := NEW.b+10;
+		raise notice 'b: %', new.b;
+        RETURN NEW;
+    END;
+$emp_stamp$ LANGUAGE plpgsql;
+
+
+CREATE TRIGGER emp_stamp AFTER insert ON emp
+    FOR EACH ROW EXECUTE PROCEDURE emp_stamp();
+
+insert into emp values(1,2);
+copy emp from stdout;
+3	4
+\.
+
+select * from emp;
+drop table emp;
+drop function if exists emp_stamp();
+
+
+-- testcase 3      before statement
+
+CREATE TABLE emp (
+    a int,
+	b int
+);
+
+CREATE OR REPLACE FUNCTION emp_stamp() RETURNS trigger AS $emp_stamp$
+    BEGIN
+		raise notice 'b: %', 2;
+        RETURN NULL;
+    END;
+$emp_stamp$ LANGUAGE plpgsql;
+
+
+CREATE TRIGGER emp_stamp BEFORE insert ON emp
+    FOR EACH statement EXECUTE PROCEDURE emp_stamp();
+
+insert into emp values(1,2);
+copy emp from stdout;
+3	4
+\.
+
+select * from emp;
+drop table emp;
+drop function if exists emp_stamp();
+
+-- testcase 4      after statement
+
+CREATE TABLE emp (
+    a int,
+	b int
+);
+
+CREATE OR REPLACE FUNCTION emp_stamp() RETURNS trigger AS $emp_stamp$
+    BEGIN
+		raise notice 'b: %', 2;
+        RETURN NULL;
+    END;
+$emp_stamp$ LANGUAGE plpgsql;
+
+
+CREATE TRIGGER emp_stamp AFTER insert ON emp
+    FOR EACH statement EXECUTE PROCEDURE emp_stamp();
+
+insert into emp values(1,2);
+copy emp from stdout;
+3	4
+\.
+
+select * from emp;
+drop table emp;
+drop function if exists emp_stamp();
+
+
+-- testcase 5      before statement error
+
+CREATE TABLE emp (
+    a int,
+	b int
+);
+
+CREATE OR REPLACE FUNCTION emp_stamp() RETURNS trigger AS $emp_stamp$
+    BEGIN
+		raise notice 'b: %', NEW.b;
+        RETURN NULL;
+    END;
+$emp_stamp$ LANGUAGE plpgsql;
+
+
+CREATE TRIGGER emp_stamp BEFORE insert ON emp
+    FOR EACH statement EXECUTE PROCEDURE emp_stamp();
+
+insert into emp values(1,2);
+copy emp from stdout;
+3	4
+\.
+
+select * from emp;
+drop table emp;
+drop function if exists emp_stamp();
+
+-- testcase 6      after statement error
+
+CREATE TABLE emp (
+    a int,
+	b int
+);
+
+CREATE OR REPLACE FUNCTION emp_stamp() RETURNS trigger AS $emp_stamp$
+    BEGIN
+		raise notice 'b: %', NEW.b;
+        RETURN NULL;
+    END;
+$emp_stamp$ LANGUAGE plpgsql;
+
+
+CREATE TRIGGER emp_stamp AFTER insert ON emp
+    FOR EACH statement EXECUTE PROCEDURE emp_stamp();
+
+insert into emp values(1,2);
+copy emp from stdout;
+3	4
+\.
+
+select * from emp;
+drop table emp;
+drop function if exists emp_stamp();
