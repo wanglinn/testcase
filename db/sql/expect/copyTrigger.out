@@ -42,6 +42,8 @@ select * from test_2;
 
 drop table test cascade;
 DROP TABLE
+drop function if exists tgcptbl_func();
+DROP FUNCTION
 -- testcase 2: after insert for each row
 create table test (a int, b text) partition by list (a);
 CREATE TABLE
@@ -92,6 +94,8 @@ select * from test_2;
 
 drop table test cascade;
 DROP TABLE
+drop function if exists tgcptbl_func();
+DROP FUNCTION
 -- testcase 3: before insert for each statement
 create table test (a int, b text) partition by list (a);
 CREATE TABLE
@@ -138,6 +142,8 @@ select * from test_2;
 
 drop table test cascade;
 DROP TABLE
+drop function if exists tgcptbl_func();
+DROP FUNCTION
 -- testcase 4: after insert for each statement
 create table test (a int, b text) partition by list (a);
 CREATE TABLE
@@ -184,6 +190,8 @@ select * from test_2;
 
 drop table test cascade;
 DROP TABLE
+drop function if exists tgcptbl_func();
+DROP FUNCTION
 -- no part table
 -- testcase 1      before insert
 CREATE TABLE emp (
@@ -275,7 +283,7 @@ insert into emp values(1,2);
 psql:copyTrigger.sql:178: NOTICE:  b: 2
 INSERT 0 1
 copy emp from stdout;
-psql:copyTrigger.sql:179: NOTICE:  b: 2
+psql:copyTrigger.sql:181: NOTICE:  b: 2
 COPY 1
 select * from emp;
  a | b 
