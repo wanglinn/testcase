@@ -3,7 +3,7 @@
 --
 --create table and index
 drop table if exists cursor_t1 cascade;
-psql:sql/cursor.sql:6: NOTICE:  table "cursor_t1" does not exist, skipping
+psql:cursor.sql:6: NOTICE:  table "cursor_t1" does not exist, skipping
 DROP TABLE
 create table cursor_t1(id1 int, id2 int);
 CREATE TABLE
@@ -386,42 +386,42 @@ fetch 4 from c1;
 (4 rows)
 
 MOVE BACKWARD 100000 FROM c1;
-psql:sql/cursor.sql:87: ERROR:  cursor can only scan forward
+psql:cursor.sql:87: ERROR:  cursor can only scan forward
 HINT:  Declare it with SCROLL option to enable backward scan.
 fetch 4 from c1;
-psql:sql/cursor.sql:88: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+psql:cursor.sql:88: ERROR:  current transaction is aborted, commands ignored until end of transaction block
 MOVE FORWARD ALL FROM c1;
-psql:sql/cursor.sql:89: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+psql:cursor.sql:89: ERROR:  current transaction is aborted, commands ignored until end of transaction block
 MOVE FORWARD -5 FROM c1;
-psql:sql/cursor.sql:90: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+psql:cursor.sql:90: ERROR:  current transaction is aborted, commands ignored until end of transaction block
 fetch -4 from c1;
-psql:sql/cursor.sql:91: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+psql:cursor.sql:91: ERROR:  current transaction is aborted, commands ignored until end of transaction block
 fetch 0 from c1;
-psql:sql/cursor.sql:92: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+psql:cursor.sql:92: ERROR:  current transaction is aborted, commands ignored until end of transaction block
 fetch 10 from c1;
-psql:sql/cursor.sql:93: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+psql:cursor.sql:93: ERROR:  current transaction is aborted, commands ignored until end of transaction block
 MOVE BACKWARD ALL FROM c1;
-psql:sql/cursor.sql:94: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+psql:cursor.sql:94: ERROR:  current transaction is aborted, commands ignored until end of transaction block
 MOVE BACKWARD -10000 FROM c1;
-psql:sql/cursor.sql:95: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+psql:cursor.sql:95: ERROR:  current transaction is aborted, commands ignored until end of transaction block
 fetch 3 from c1;
-psql:sql/cursor.sql:96: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+psql:cursor.sql:96: ERROR:  current transaction is aborted, commands ignored until end of transaction block
 MOVE BACKWARD 1000 FROM c1;
-psql:sql/cursor.sql:97: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+psql:cursor.sql:97: ERROR:  current transaction is aborted, commands ignored until end of transaction block
 fetch -4 from c1;
-psql:sql/cursor.sql:98: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+psql:cursor.sql:98: ERROR:  current transaction is aborted, commands ignored until end of transaction block
 fetch 0 from c1;
-psql:sql/cursor.sql:99: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+psql:cursor.sql:99: ERROR:  current transaction is aborted, commands ignored until end of transaction block
 fetch 10 from c1;
-psql:sql/cursor.sql:100: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+psql:cursor.sql:100: ERROR:  current transaction is aborted, commands ignored until end of transaction block
 MOVE BACKWARD -100 FROM c1;
-psql:sql/cursor.sql:101: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+psql:cursor.sql:101: ERROR:  current transaction is aborted, commands ignored until end of transaction block
 fetch -4 from c1;
-psql:sql/cursor.sql:102: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+psql:cursor.sql:102: ERROR:  current transaction is aborted, commands ignored until end of transaction block
 fetch 0 from c1;
-psql:sql/cursor.sql:103: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+psql:cursor.sql:103: ERROR:  current transaction is aborted, commands ignored until end of transaction block
 fetch 10 from c1;
-psql:sql/cursor.sql:104: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+psql:cursor.sql:104: ERROR:  current transaction is aborted, commands ignored until end of transaction block
 commit;
 ROLLBACK
 -- 4

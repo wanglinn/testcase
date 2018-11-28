@@ -1,0 +1,235 @@
+-- testcase 1
+create table mlparted (a int, b int) partition by range (a, b) distribute by random(a,b);
+CREATE TABLE
+create table mlparted1 (b int not null, a int not null) distribute by random(b, a);
+CREATE TABLE
+--fail
+alter table mlparted attach partition mlparted1 for values from (1, 2) to (1, 10);
+psql:checkTblAttach.sql:5: ERROR:  table "mlparted1" has different distributeby column names order with table "mlparted"
+drop table mlparted;
+DROP TABLE
+drop table mlparted1;
+DROP TABLE
+--testcase 2
+create table mlparted (a int, b int) partition by range (a, b) distribute by random(a,b);
+CREATE TABLE
+create table mlparted1 (b int not null, a int not null) distribute by  random(a,b);
+CREATE TABLE
+alter table mlparted attach partition mlparted1 for values from (1, 2) to (1, 10);
+ALTER TABLE
+drop table mlparted;
+DROP TABLE
+drop table mlparted1;
+psql:checkTblAttach.sql:14: ERROR:  table "mlparted1" does not exist
+--testcase 3
+create table mlparted (a int, b int) partition by range (a, b) distribute by hash(a);
+CREATE TABLE
+create table mlparted1 (b int not null, a int not null) distribute by hash(b);
+CREATE TABLE
+--fail
+alter table mlparted attach partition mlparted1 for values from (1, 2) to (1, 10);
+psql:checkTblAttach.sql:20: ERROR:  table "mlparted1" has different distributeby column name with table "mlparted"
+drop table mlparted;
+DROP TABLE
+drop table mlparted1;
+DROP TABLE
+--testcase 4
+create table mlparted (a int, b int) partition by range (a, b) distribute by hash(a);
+CREATE TABLE
+create table mlparted1 (b int not null, a int not null) distribute by hash(a);
+CREATE TABLE
+alter table mlparted attach partition mlparted1 for values from (1, 2) to (1, 10);
+ALTER TABLE
+drop table mlparted;
+DROP TABLE
+drop table mlparted1;
+psql:checkTblAttach.sql:29: ERROR:  table "mlparted1" does not exist
+--testcase 5
+create table mlparted (a int, b int) partition by range (a, b) distribute by modulo(a);
+CREATE TABLE
+create table mlparted1 (b int not null, a int not null) distribute by modulo(b);
+CREATE TABLE
+--fail
+alter table mlparted attach partition mlparted1 for values from (1, 2) to (1, 10);
+psql:checkTblAttach.sql:35: ERROR:  table "mlparted1" has different distributeby column name with table "mlparted"
+drop table mlparted;
+DROP TABLE
+drop table mlparted1;
+DROP TABLE
+--testcase 6
+create table mlparted (a int, b int) partition by range (a, b) distribute by modulo(a);
+CREATE TABLE
+create table mlparted1 (b int not null, a int not null) distribute by modulo(a);
+CREATE TABLE
+alter table mlparted attach partition mlparted1 for values from (1, 2) to (1, 10);
+ALTER TABLE
+drop table mlparted;
+DROP TABLE
+drop table mlparted1;
+psql:checkTblAttach.sql:44: ERROR:  table "mlparted1" does not exist
+--testcase 7
+create table mlparted (a int, b int) partition by range (a, b) distribute by hashmap(a);
+CREATE TABLE
+create table mlparted1 (b int not null, a int not null) distribute by hashmap(b);
+CREATE TABLE
+--fail
+alter table mlparted attach partition mlparted1 for values from (1, 2) to (1, 10);
+psql:checkTblAttach.sql:50: ERROR:  table "mlparted1" has different distributeby column name with table "mlparted"
+drop table mlparted;
+DROP TABLE
+drop table mlparted1;
+DROP TABLE
+--testcase 8
+create table mlparted (a int, b int) partition by range (a, b) distribute by hashmap(b);
+CREATE TABLE
+create table mlparted1 (b int not null, a int not null) distribute by hashmap(b);
+CREATE TABLE
+alter table mlparted attach partition mlparted1 for values from (1, 2) to (1, 10);
+ALTER TABLE
+drop table mlparted;
+DROP TABLE
+drop table mlparted1;
+psql:checkTblAttach.sql:59: ERROR:  table "mlparted1" does not exist
+--testcase 9
+CREATE OR REPLACE FUNCTION mydistributor(id integer default 1, value integer default 2)
+RETURNS integer
+AS
+$$
+BEGIN
+RETURN ( id + value ) % 2;
+END;
+$$
+LANGUAGE plpgsql
+IMMUTABLE
+STRICT;
+CREATE FUNCTION
+create table mlparted (a int, b int) partition by range (a, b) distribute by mydistributor(b);
+CREATE TABLE
+create table mlparted1 (b int not null, a int not null) distribute by mydistributor(a);
+CREATE TABLE
+--fail
+alter table mlparted attach partition mlparted1 for values from (1, 2) to (1, 10);
+psql:checkTblAttach.sql:77: ERROR:  table "mlparted1" has different distributeby column names order with table "mlparted"
+drop table mlparted;
+DROP TABLE
+drop table mlparted1;
+DROP TABLE
+create table mlparted (a int, b int) partition by range (a, b) distribute by mydistributor(a, b);
+CREATE TABLE
+create table mlparted1 (b int not null, a int not null) distribute by mydistributor(a);
+CREATE TABLE
+--fail
+alter table mlparted attach partition mlparted1 for values from (1, 2) to (1, 10);
+psql:checkTblAttach.sql:84: ERROR:  table "mlparted1" has different input parameters number in distributeby user defined function with table "mlparted"
+drop table mlparted;
+DROP TABLE
+drop table mlparted1;
+DROP TABLE
+create table mlparted (a int, b int) partition by range (a, b) distribute by mydistributor(a,b);
+CREATE TABLE
+create table mlparted1 (b int not null, a int not null) distribute by mydistributor(b,a);
+CREATE TABLE
+--fail
+alter table mlparted attach partition mlparted1 for values from (1, 2) to (1, 10);
+psql:checkTblAttach.sql:91: ERROR:  table "mlparted1" has different distributeby column names order with table "mlparted"
+drop table mlparted;
+DROP TABLE
+drop table mlparted1;
+DROP TABLE
+create table mlparted (a int, b int) partition by range (a, b) distribute by mydistributor(a,b);
+CREATE TABLE
+create table mlparted1 (b int not null, a int not null) distribute by mydistributor(a,b);
+CREATE TABLE
+alter table mlparted attach partition mlparted1 for values from (1, 2) to (1, 10);
+ALTER TABLE
+drop table mlparted;
+DROP TABLE
+drop table mlparted1;
+psql:checkTblAttach.sql:99: ERROR:  table "mlparted1" does not exist
+drop function mydistributor(int, int);
+DROP FUNCTION
+--testcase 10
+CREATE OR REPLACE FUNCTION mydistributor(id integer default 1, value integer default 2)
+RETURNS integer
+AS
+$$
+BEGIN
+RETURN ( id + value ) % 2;
+END;
+$$
+LANGUAGE plpgsql
+IMMUTABLE
+STRICT;
+CREATE FUNCTION
+create table mlparted (a int, b int) partition by range (a, b) distribute by random(a,b);
+CREATE TABLE
+create table mlparted1 (b int not null, a int not null) distribute by mydistributor(a, b);
+CREATE TABLE
+--fail
+alter table mlparted attach partition mlparted1 for values from (1, 2) to (1, 10);
+psql:checkTblAttach.sql:119: ERROR:  table "mlparted1" has different distributeby user defined function with table "mlparted"
+drop table mlparted;
+DROP TABLE
+drop table mlparted1;
+DROP TABLE
+drop function mydistributor(int, int);
+DROP FUNCTION
+--testcase 11
+create table mlparted (a int, b int) partition by range (a, b) distribute by hash(b);
+CREATE TABLE
+create table mlparted1 (b int not null, a int not null) distribute by hashmap(a);
+CREATE TABLE
+--fail
+alter table mlparted attach partition mlparted1 for values from (1, 2) to (1, 10);
+psql:checkTblAttach.sql:129: ERROR:  table "mlparted1" hash different distributeby type with table "mlparted"
+drop table mlparted;
+DROP TABLE
+drop table mlparted1;
+DROP TABLE
+--testcase 12
+create table mlparted (a int, b int) partition by range (a, b) distribute by hash(b);
+CREATE TABLE
+create table mlparted1 (b int not null, a int not null) distribute by modulo(a);
+CREATE TABLE
+--fail
+alter table mlparted attach partition mlparted1 for values from (1, 2) to (1, 10);
+psql:checkTblAttach.sql:137: ERROR:  table "mlparted1" hash different distributeby type with table "mlparted"
+drop table mlparted;
+DROP TABLE
+drop table mlparted1;
+DROP TABLE
+--testcase 13
+create table mlparted (a int, b int) partition by range (a, b) distribute by replication;
+CREATE TABLE
+create table mlparted1 (b int not null, a int not null) distribute by modulo(a);
+CREATE TABLE
+--fail
+alter table mlparted attach partition mlparted1 for values from (1, 2) to (1, 10);
+psql:checkTblAttach.sql:145: ERROR:  table "mlparted1" hash different distributeby type with table "mlparted"
+drop table mlparted;
+DROP TABLE
+drop table mlparted1;
+DROP TABLE
+--testcase 14
+create table mlparted (a int, b int) partition by range (a, b) distribute by replication;
+CREATE TABLE
+create table mlparted1 (b int not null, a int not null) distribute by replication;
+CREATE TABLE
+alter table mlparted attach partition mlparted1 for values from (1, 2) to (1, 10);
+ALTER TABLE
+drop table mlparted;
+DROP TABLE
+drop table mlparted1;
+psql:checkTblAttach.sql:154: ERROR:  table "mlparted1" does not exist
+--testcase 15
+create table mlparted (a int, b int) partition by range (a, b);
+CREATE TABLE
+create table mlparted1 (a int not null, b int not null) to node (dn1);
+CREATE TABLE
+--fail
+alter table mlparted attach partition mlparted1 for values from (1, 2) to (1, 10);
+ALTER TABLE
+drop table mlparted;
+DROP TABLE
+drop table mlparted1;
+psql:checkTblAttach.sql:162: ERROR:  table "mlparted1" does not exist

@@ -6,64 +6,66 @@ CREATE TABLE
 create table pt2 (c date, a int,b char) partition by range(a);
 CREATE TABLE
 alter table pt attach partition pt1 for values from (1) to (11);
-ALTER TABLE
+psql:parttable.sql:6: ERROR:  table "pt1" has different distributeby column name with table "pt"
 alter table pt attach partition pt2 for values from (11) to (21);
-ALTER TABLE
+psql:parttable.sql:7: ERROR:  table "pt2" has different distributeby column name with table "pt"
 create table pt11(c date, a int,b char);
 CREATE TABLE
 create table pt12(b char, c date, a int);
 CREATE TABLE
 alter table pt1 attach partition pt11 for values from (1) to (5);
-ALTER TABLE
+psql:parttable.sql:12: ERROR:  table "pt11" has different distributeby column name with table "pt1"
 alter table pt2 attach partition pt12 for values from (11) to (15);
-ALTER TABLE
---create table pt11 partition of pt1 for values from (1) to (5);
---create table pt12 partition of pt2 for values from (11) to (15);
+psql:parttable.sql:13: ERROR:  table "pt12" has different distributeby column name with table "pt2"
 create view ptv as select * from pt;
 CREATE VIEW
 insert into ptv values(1,'2', '2018-10-28');
-INSERT 0 1
+psql:parttable.sql:17: ERROR:  no partition of relation "pt" found for row
+DETAIL:  Partition key of the failing row contains (a) = (1).
 insert into ptv values(11,'2', '2018-10-28');
-INSERT 0 1
+psql:parttable.sql:18: ERROR:  no partition of relation "pt" found for row
+DETAIL:  Partition key of the failing row contains (a) = (11).
 select * from pt;
- a  | b |     c      
-----+---+------------
-  1 | 2 | 2018-10-28
- 11 | 2 | 2018-10-28
-(2 rows)
+ a | b | c 
+---+---+---
+(0 rows)
 
 select * from pt1;
- b |     c      | a 
----+------------+---
- 2 | 2018-10-28 | 1
-(1 row)
+ b | c | a 
+---+---+---
+(0 rows)
 
 select * from pt2;
-     c      | a  | b 
-------------+----+---
- 2018-10-28 | 11 | 2
-(1 row)
+ c | a | b 
+---+---+---
+(0 rows)
 
 select * from pt11;
-     c      | a | b 
-------------+---+---
- 2018-10-28 | 1 | 2
-(1 row)
+ c | a | b 
+---+---+---
+(0 rows)
 
 select * from pt12;
- b |     c      | a  
----+------------+----
- 2 | 2018-10-28 | 11
-(1 row)
+ b | c | a 
+---+---+---
+(0 rows)
 
 insert into ptv values(6,'2', '2018-10-28');
-psql:parttable.sql:28: ERROR:  no partition of relation "pt1" found for row
+psql:parttable.sql:26: ERROR:  no partition of relation "pt" found for row
 DETAIL:  Partition key of the failing row contains (a) = (6).
 insert into ptv values(16,'2', '2018-10-28');
-psql:parttable.sql:29: ERROR:  no partition of relation "pt2" found for row
+psql:parttable.sql:27: ERROR:  no partition of relation "pt" found for row
 DETAIL:  Partition key of the failing row contains (a) = (16).
 drop table pt cascade;
-psql:parttable.sql:31: NOTICE:  drop cascades to view ptv
+psql:parttable.sql:29: NOTICE:  drop cascades to view ptv
+DROP TABLE
+drop table if exists pt1;
+DROP TABLE
+drop table if exists pt2;
+DROP TABLE
+drop table if exists pt11;
+DROP TABLE
+drop table if exists pt12;
 DROP TABLE
 --test case 2
 create table pt (a int,b char, c date, d text) partition by list(d);
@@ -73,58 +75,60 @@ CREATE TABLE
 create table pt2 (c date, d text, a int,b char) partition by list(d);
 CREATE TABLE
 alter table pt attach partition pt1 for values in ('pt1');
-ALTER TABLE
+psql:parttable.sql:40: ERROR:  table "pt1" has different distributeby column name with table "pt"
 alter table pt attach partition pt2 for values in ('pt2');
-ALTER TABLE
+psql:parttable.sql:41: ERROR:  table "pt2" has different distributeby column name with table "pt"
 create table pt11(c date, d text, a int,b char);
 CREATE TABLE
 create table pt12(b char, c date, d text, a int);
 CREATE TABLE
 alter table pt1 attach partition pt11 for values in ('pt1');
-ALTER TABLE
+psql:parttable.sql:45: ERROR:  table "pt11" has different distributeby column name with table "pt1"
 alter table pt2 attach partition pt12 for values in ('pt2');
-ALTER TABLE
---create table pt11 partition of pt1 for values in ('pt1');
---create table pt12 partition of pt2 for values in ('pt2');
+psql:parttable.sql:46: ERROR:  table "pt12" has different distributeby column name with table "pt2"
 create view ptv as select * from pt;
 CREATE VIEW
 insert into ptv values(1,'2', '2018-10-28', 'pt1');
-INSERT 0 1
+psql:parttable.sql:49: ERROR:  no partition of relation "pt" found for row
+DETAIL:  Partition key of the failing row contains (d) = (pt1).
 insert into ptv values(6,'2', '2018-10-28', 'pt2');
-INSERT 0 1
+psql:parttable.sql:50: ERROR:  no partition of relation "pt" found for row
+DETAIL:  Partition key of the failing row contains (d) = (pt2).
 select * from pt;
- a | b |     c      |  d  
----+---+------------+-----
- 1 | 2 | 2018-10-28 | pt1
- 6 | 2 | 2018-10-28 | pt2
-(2 rows)
+ a | b | c | d 
+---+---+---+---
+(0 rows)
 
 select * from pt1;
- b |     c      |  d  | a 
----+------------+-----+---
- 2 | 2018-10-28 | pt1 | 1
-(1 row)
+ b | c | d | a 
+---+---+---+---
+(0 rows)
 
 select * from pt2;
-     c      |  d  | a | b 
-------------+-----+---+---
- 2018-10-28 | pt2 | 6 | 2
-(1 row)
+ c | d | a | b 
+---+---+---+---
+(0 rows)
 
 select * from pt11;
-     c      |  d  | a | b 
-------------+-----+---+---
- 2018-10-28 | pt1 | 1 | 2
-(1 row)
+ c | d | a | b 
+---+---+---+---
+(0 rows)
 
 select * from pt12;
- b |     c      |  d  | a 
----+------------+-----+---
- 2 | 2018-10-28 | pt2 | 6
-(1 row)
+ b | c | d | a 
+---+---+---+---
+(0 rows)
 
 drop table pt cascade;
-psql:parttable.sql:59: NOTICE:  drop cascades to view ptv
+psql:parttable.sql:58: NOTICE:  drop cascades to view ptv
+DROP TABLE
+drop table if exists pt1;
+DROP TABLE
+drop table if exists pt2;
+DROP TABLE
+drop table if exists pt11;
+DROP TABLE
+drop table if exists pt12;
 DROP TABLE
 -- test case 3
 create table mlparted (a int, b int) partition by range (b);
@@ -144,16 +148,18 @@ ALTER TABLE
 alter table mlparted1 attach partition mlparted11 for values from (1) to (5);
 ALTER TABLE
 alter table mlparted attach partition mlparted1 for values from (1) to (10);
-ALTER TABLE
+psql:parttable.sql:73: ERROR:  table "mlparted1" has different distributeby column name with table "mlparted"
 with ins (a, b, c) as
   (insert into mlparted (b, a) select 2 , 1  returning 3, *)
   select * from ins; 
- a | b | c 
----+---+---
- 3 | 1 | 2
-(1 row)
-
+psql:parttable.sql:76: ERROR:  no partition of relation "mlparted" found for row
+DETAIL:  Partition key of the failing row contains (b) = (2).
 drop table mlparted cascade;
+DROP TABLE
+drop table if exists mlparted1;
+DROP TABLE
+drop table if exists mlparted11;
+psql:parttable.sql:80: NOTICE:  table "mlparted11" does not exist, skipping
 DROP TABLE
 -- test case 4
 create table mlparted (a int, b int) partition by range (b);
@@ -169,16 +175,18 @@ ALTER TABLE
 alter table mlparted1 add a int not null;
 ALTER TABLE
 alter table mlparted attach partition mlparted1 for values from (1) to (5);
-ALTER TABLE
+psql:parttable.sql:89: ERROR:  table "mlparted1" has different distributeby column name with table "mlparted"
 with ins (a, b, c) as
   (insert into mlparted (b, a) select 2 , 1  returning 3, *)
   select * from ins; 
- a | b | c 
----+---+---
- 3 | 1 | 2
-(1 row)
-
+psql:parttable.sql:92: ERROR:  no partition of relation "mlparted" found for row
+DETAIL:  Partition key of the failing row contains (b) = (2).
 drop table mlparted cascade;
+DROP TABLE
+drop table if exists mlparted1;
+DROP TABLE
+drop table if exists mlparted11;
+psql:parttable.sql:95: NOTICE:  table "mlparted11" does not exist, skipping
 DROP TABLE
 --test case 5
 create table mlparted (a int, b int) partition by range (b);
@@ -186,13 +194,13 @@ CREATE TABLE
 create table mlparted1 (a int, b int);
 CREATE TABLE
 alter table mlparted1 drop a;
-psql:parttable.sql:93: ERROR:  Distribution column cannot be dropped
+psql:parttable.sql:100: ERROR:  Distribution column cannot be dropped
 alter table mlparted1 add a int;
-psql:parttable.sql:94: ERROR:  column "a" of relation "mlparted1" already exists
+psql:parttable.sql:101: ERROR:  column "a" of relation "mlparted1" already exists
 alter table mlparted1 drop a;
-psql:parttable.sql:95: ERROR:  Distribution column cannot be dropped
+psql:parttable.sql:102: ERROR:  Distribution column cannot be dropped
 alter table mlparted1 add a int;
-psql:parttable.sql:96: ERROR:  column "a" of relation "mlparted1" already exists
+psql:parttable.sql:103: ERROR:  column "a" of relation "mlparted1" already exists
 alter table mlparted attach partition mlparted1 for values from (1) to (5);
 ALTER TABLE
 with ins (a, b, c) as
@@ -205,6 +213,12 @@ with ins (a, b, c) as
 
  
 drop table mlparted cascade;
+DROP TABLE
+drop table if exists mlparted1;
+psql:parttable.sql:110: NOTICE:  table "mlparted1" does not exist, skipping
+DROP TABLE
+drop table if exists mlparted11;
+psql:parttable.sql:111: NOTICE:  table "mlparted11" does not exist, skipping
 DROP TABLE
 -- test case 6
 create table mlparted (a int, b int) partition by range (b);
@@ -220,24 +234,23 @@ ALTER TABLE
 alter table mlparted1 add a int;
 ALTER TABLE
 alter table mlparted attach partition mlparted1 for values from (1) to (5);
-ALTER TABLE
+psql:parttable.sql:120: ERROR:  table "mlparted1" has different distributeby column name with table "mlparted"
 with ins (a, b, c) as
   (insert into mlparted (b, a) select 2 , 1  returning 3, *)
   select * from ins;  
- a | b | c 
----+---+---
- 3 | 1 | 2
-(1 row)
-
+psql:parttable.sql:123: ERROR:  no partition of relation "mlparted" found for row
+DETAIL:  Partition key of the failing row contains (b) = (2).
 with ins (a) as      
   (insert into mlparted (b, a) select 2 , 1  returning 3)   
   select * from ins;
- a 
----
- 3
-(1 row)
-
+psql:parttable.sql:127: ERROR:  no partition of relation "mlparted" found for row
+DETAIL:  Partition key of the failing row contains (b) = (2).
 drop table mlparted cascade;
+DROP TABLE
+drop table if exists mlparted1;
+DROP TABLE
+drop table if exists mlparted11;
+psql:parttable.sql:131: NOTICE:  table "mlparted11" does not exist, skipping
 DROP TABLE
 -- test case 7
 create table mlparted (a int, b int) partition by range (a, b);
@@ -249,7 +262,7 @@ CREATE TABLE
 alter table mlparted1 attach partition mlparted11 for values from (2) to (5);
 ALTER TABLE
 alter table mlparted attach partition mlparted1 for values from (1, 2) to (1, 10);
-ALTER TABLE
+psql:parttable.sql:139: ERROR:  table "mlparted1" has different distributeby column name with table "mlparted"
 -- have a BR trigger modify the row such that the check_b is violated
 create function mlparted11_trig_fn()
 returns trigger AS
@@ -260,19 +273,24 @@ begin
 end;
 $$
 language plpgsql;
-CREATE FUNCTION
+psql:parttable.sql:150: ERROR:  function "mlparted11_trig_fn" already exists with same argument types
 create trigger mlparted11_trig before insert ON mlparted11
   for each row execute procedure mlparted11_trig_fn();
 CREATE TRIGGER
 insert into mlparted values (1, 2);
-INSERT 0 1
+psql:parttable.sql:155: ERROR:  no partition of relation "mlparted" found for row
+DETAIL:  Partition key of the failing row contains (a, b) = (1, 2).
 select * from mlparted;
  a | b 
 ---+---
- 1 | 4
-(1 row)
+(0 rows)
 
 drop table mlparted cascade;
+DROP TABLE
+drop table if exists mlparted1;
+DROP TABLE
+drop table if exists mlparted11;
+psql:parttable.sql:160: NOTICE:  table "mlparted11" does not exist, skipping
 DROP TABLE
 drop function mlparted11_trig_fn();
 DROP FUNCTION

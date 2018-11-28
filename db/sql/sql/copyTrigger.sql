@@ -191,6 +191,110 @@ drop table test cascade;
 drop function if exists tgcptbl_func();
 
 
+-- testcase 9: before/after insert for each echo
+
+create table test (a int, b int) partition by list (a);
+create table test_1 (a int, b int);
+create table test_2 (a int, b int);
+
+create or replace function tgcptbl_func() 
+returns trigger 
+as $$
+begin raise notice 'a: %', new.a;
+if new.b < 10 then
+   new.b = 10;
+   else 
+   new.b = 20;
+end if;
+if new.b = 10 then
+   return NULL;
+else
+   return new;
+end if;
+
+end
+$$ language plpgsql;
+
+
+create trigger tg1 before insert on test_1 for each row execute procedure tgcptbl_func();
+create trigger tg2 before insert on test_2 for each row execute procedure tgcptbl_func();
+create trigger tg3 after insert on test_1 for each row execute procedure tgcptbl_func();
+create trigger tg4 after insert on test_2 for each row execute procedure tgcptbl_func();
+
+create trigger tg5 before insert on test_1 for each statement execute procedure tgcptbl_func();
+create trigger tg6 before insert on test_2 for each statement execute procedure tgcptbl_func();
+create trigger tg7 after insert on test_1 for each statement execute procedure tgcptbl_func();
+create trigger tg8 after insert on test_2 for each statement execute procedure tgcptbl_func();
+
+
+alter table test attach partition test_1 for values in (1);
+alter table test attach partition test_2 for values in (2);
+insert into test values (1, 1), (2, 11); 
+
+copy test from stdout;
+1	1
+2	11
+\.
+
+select * from test;
+select * from test_1;
+select * from test_2;
+
+drop table test cascade;
+drop function if exists tgcptbl_func();
+
+
+-- testcase 10: before/after insert for each echo
+
+create table test (a int, b int) partition by list (a);
+create table test_1 (b int, a int) distribute by hash(a);
+create table test_2 (b int, a int) distribute by hash(a);
+
+create or replace function tgcptbl_func() 
+returns trigger 
+as $$
+begin raise notice 'a: %', new.a;
+if new.b < 10 then
+   new.b = 10;
+   else 
+   new.b = 20;
+end if;
+if new.b = 10 then
+   return NULL;
+else
+   return new;
+end if;
+
+end
+$$ language plpgsql;
+
+
+create trigger tg1 before insert on test_1 for each row execute procedure tgcptbl_func();
+create trigger tg2 before insert on test_2 for each row execute procedure tgcptbl_func();
+create trigger tg3 after insert on test_1 for each row execute procedure tgcptbl_func();
+create trigger tg4 after insert on test_2 for each row execute procedure tgcptbl_func();
+
+create trigger tg5 before insert on test_1 for each statement execute procedure tgcptbl_func();
+create trigger tg6 before insert on test_2 for each statement execute procedure tgcptbl_func();
+create trigger tg7 after insert on test_1 for each statement execute procedure tgcptbl_func();
+create trigger tg8 after insert on test_2 for each statement execute procedure tgcptbl_func();
+
+alter table test attach partition test_1 for values in (1);
+alter table test attach partition test_2 for values in (2);
+insert into test values (1, 1), (2, 11); 
+
+copy test from stdout;
+1	1
+2	11
+\.
+
+select * from test;
+select * from test_1;
+select * from test_2;
+
+drop table test cascade;
+drop function if exists tgcptbl_func();
+
 
 -- no part table
 
@@ -200,6 +304,8 @@ CREATE TABLE emp (
 	b int
 );
 
+
+-- testcase 1      before insert
 
 CREATE OR REPLACE FUNCTION emp_stamp() RETURNS trigger AS $emp_stamp$
     BEGIN
