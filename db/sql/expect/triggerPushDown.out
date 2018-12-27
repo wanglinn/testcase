@@ -28,6 +28,15 @@ BEGIN
 END;
 $$;
 CREATE FUNCTION
+explain verbose delete from transition_table_base where id=1;
+                                          QUERY PLAN                                           
+-----------------------------------------------------------------------------------------------
+ Data Node Scan on "__REMOTE_FQS_QUERY__"  (cost=0.00..0.00 rows=0 width=0)
+   Primary node/s: dn1
+   Node/s: dn1
+   Remote query: DELETE FROM public.transition_table_base transition_table_base WHERE (id = 1)
+(4 rows)
+
 -- after delete oldtable
 CREATE TRIGGER transition_table_base_upd_trig
   AFTER DELETE ON transition_table_base 
@@ -51,7 +60,7 @@ CREATE TRIGGER
 
  
  delete from transition_table_base where id=1;
-psql:triggerPushDown.sql:38: INFO:  1
+psql:triggerPushDown.sql:40: INFO:  1
 
 DELETE 1
   
@@ -92,6 +101,16 @@ BEGIN
 END;
 $$;
 CREATE FUNCTION
+explain verbose update transition_table_base  set id2=3 where id2=3;
+                                              QUERY PLAN                                               
+-------------------------------------------------------------------------------------------------------
+ Data Node Scan on "__REMOTE_FQS_QUERY__"  (cost=0.00..0.00 rows=0 width=0)
+   Output: 3
+   Primary node/s: dn1
+   Node/s: dn1, dn2
+   Remote query: UPDATE public.transition_table_base transition_table_base SET id2 = 3 WHERE (id2 = 3)
+(5 rows)
+
 -- after update oldtable
 CREATE TRIGGER transition_table_base_upd_trig
   AFTER UPDATE ON transition_table_base 
@@ -118,7 +137,7 @@ CREATE TRIGGER
 
  
   update transition_table_base  set id2=3 where id2=3;
-psql:triggerPushDown.sql:82: INFO:  
+psql:triggerPushDown.sql:86: INFO:  
 UPDATE 0
  
  drop table transition_table_base  cascade;
@@ -157,6 +176,15 @@ BEGIN
 END;
 $$;
 CREATE FUNCTION
+explain verbose insert into transition_table_base  values(5,5);
+                                                QUERY PLAN                                                 
+-----------------------------------------------------------------------------------------------------------
+ Data Node Scan on "__REMOTE_FQS_QUERY__"  (cost=0.00..0.00 rows=0 width=0)
+   Output: 5, 5
+   Node expr: 5
+   Remote query: INSERT INTO public.transition_table_base AS transition_table_base (id, id2) VALUES (5, 5)
+(4 rows)
+
 -- after insert newtable
 CREATE TRIGGER transition_table_base_upd_trig
   AFTER INSERT ON transition_table_base 
@@ -178,7 +206,7 @@ CREATE TRIGGER
 
  
 insert into transition_table_base  values(5,5);
-psql:triggerPushDown.sql:125: INFO:  5
+psql:triggerPushDown.sql:131: INFO:  5
 
 INSERT 0 1
   
@@ -219,6 +247,16 @@ BEGIN
 END;
 $$;
 CREATE FUNCTION
+explain verbose update transition_table_base  set id2=3 where id2=3;
+                                              QUERY PLAN                                               
+-------------------------------------------------------------------------------------------------------
+ Data Node Scan on "__REMOTE_FQS_QUERY__"  (cost=0.00..0.00 rows=0 width=0)
+   Output: 3
+   Primary node/s: dn1
+   Node/s: dn1, dn2
+   Remote query: UPDATE public.transition_table_base transition_table_base SET id2 = 3 WHERE (id2 = 3)
+(5 rows)
+
 -- after update newtable
 CREATE TRIGGER transition_table_base_upd_trig
   AFTER UPDATE ON transition_table_base 
@@ -245,7 +283,7 @@ CREATE TRIGGER
 
  
   update transition_table_base  set id2=3 where id2=3;
-psql:triggerPushDown.sql:169: INFO:  
+psql:triggerPushDown.sql:177: INFO:  
 UPDATE 0
  
  drop table transition_table_base  cascade;
