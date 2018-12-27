@@ -26,6 +26,8 @@ BEGIN
 END;
 $$;
 
+explain verbose delete from transition_table_base where id=1;
+
 -- after delete oldtable
 CREATE TRIGGER transition_table_base_upd_trig
   AFTER DELETE ON transition_table_base 
@@ -70,6 +72,8 @@ BEGIN
 END;
 $$;
 
+explain verbose update transition_table_base  set id2=3 where id2=3;
+
 -- after update oldtable
 CREATE TRIGGER transition_table_base_upd_trig
   AFTER UPDATE ON transition_table_base 
@@ -112,6 +116,8 @@ BEGIN
   RETURN new;
 END;
 $$;
+
+explain verbose insert into transition_table_base  values(5,5);
 
 -- after insert newtable
 CREATE TRIGGER transition_table_base_upd_trig
@@ -156,6 +162,8 @@ BEGIN
   RETURN new;
 END;
 $$;
+
+explain verbose update transition_table_base  set id2=3 where id2=3;
 
 -- after update newtable
 CREATE TRIGGER transition_table_base_upd_trig
