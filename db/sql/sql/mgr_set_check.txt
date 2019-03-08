@@ -1,0 +1,32 @@
+ 在mgr 中可以通过set 命令设置各个节点的guc参数，下面的内容是为了验证取值范围的正确性。
+ 
+ set coordinator master cn1(backend_flush_after = 256);  --ok
+ set coordinator master cn1(backend_flush_after = '2048kB'); --ok
+ set coordinator master cn1(backend_flush_after = '2MB');  --ok
+ set coordinator master cn1(backend_flush_after = 257);  --false
+ set coordinator master cn1(backend_flush_after = 257);  --false
+ set coordinator master cn1(backend_flush_after = '2056kB'); --false
+ set coordinator master cn1(backend_flush_after = '3MB'); --false
+ set coordinator master cn1(backend_flush_after = '3GB'); --false
+  
+  
+ set coordinator master cn1(effective_cache_size = '2047GB');  --ok
+ set coordinator master cn1(effective_cache_size = '2048GB');  --false
+
+ set coordinator master cn1(segment_size = 131072);  --ok
+ set coordinator master cn1(segment_size = 131071);  --false 
+ set coordinator master cn1(segment_size = '1024MB');  --ok
+ set coordinator master cn1(segment_size = '1032MB');  --false  
+ set coordinator master cn1(segment_size = '1GB');  --ok  
+ set coordinator master cn1(segment_size = '2GB');  --false 
+  
+ set coordinator master cn1(wal_buffers = -1);  --ok
+ set coordinator master cn1(wal_buffers = -2);  --false
+ set coordinator master cn1(wal_buffers = '-8kB');  --ok
+ set coordinator master cn1(wal_buffers = 262143);  --ok
+ set coordinator master cn1(wal_buffers = 262147);  --false  
+ set coordinator master cn1(wal_buffers = '2GB');  --ok  
+ set coordinator master cn1(wal_buffers = '3GB');  --false 
+ 
+ 
+ set coordinator master cn1(shared_buffers = '8kB');  --false 
