@@ -1,0 +1,140 @@
+postgresql 查看系统中的锁信息与锁资源
+https://blog.csdn.net/rudygao/article/details/49334001
+
+
+--查看当前活动的客户端连接数
+ SELECT count(*) FROM pg_stat_activity WHERE NOT pid=pg_backend_pid();    
+ 
+ 
+ --查询客户端连接的情况
+ SELECT pid,case when waiting='f' then 'already get lock,sql executing' when waiting='t' then 'waiting get lock,sql waiting execute' end lock_satus,
+ current_timestamp - least(query_start,xact_start) AS runtime,substr(query,1,25) AS current_query
+FROM pg_stat_activity WHERE NOT pid=pg_backend_pid() and state<>'idle' and application_name<>'pg_statsinfod' order by runtime desc
+ 
+
+		
+--查看持有锁和等待锁的一些信息：
+--reltype=0代表其为索引
+SELECT locker.pid,
+        pc.relname,
+        locker.mode,
+        locker_act.application_name,
+        least(query_start,xact_start) start_time,
+        locker_act.state,
+        CASE
+    WHEN granted='f' THEN
+    'wait_lock'
+    WHEN granted='t' THEN
+    'get_lock'
+    END lock_satus,current_timestamp - least(query_start,xact_start) AS runtime,
+	locker_act.query
+FROM pg_locks locker,pg_stat_activity locker_act, pg_class pc
+WHERE locker.pid=locker_act.pid
+        AND NOT locker.pid=pg_backend_pid()
+        AND application_name<>'pg_statsinfod'
+        AND locker.relation = pc.oid
+        AND pc.reltype<>0 --and pc.relname='t'
+ORDER BY  runtime desc;
+ 
+
+--查询系统中正在执行的或者等待执行的事务
+--注意其只是代表事务信息，系统中也有可能存在慢的查询
+select pc.relname lock_table,pc.oid,tans.pid, CASE
+    WHEN waiting='f' THEN
+    'already get lock,sql executing'
+    WHEN waiting='t' THEN
+    'waiting get lock,sql waiting execute'
+    END lock_satus,
+	least(query_start,xact_start) query_start,
+	current_timestamp - least(query_start,xact_start) AS runtime,
+	psa.query
+from pg_locks tans,pg_locks pl,pg_class pc ,pg_stat_activity psa
+where tans.transactionid is NOT null and pc.oid=pl.relation and tans.pid=pl.pid
+and tans.pid=psa.pid and pc.reltype<>0
+order by runtime desc;
+
+
+
+
+ --查看系统中正在执行的sql与lock_table有关的信息
+SELECT locktype,
+        pg_locks.pid,
+         virtualtransaction,
+         transactionid,
+         nspname,
+         relname,
+         mode,
+         granted,
+    CASE
+    WHEN granted='f' THEN
+    'get_lock'
+    WHEN granted='t' THEN
+    'wait_lock'
+    END lock_satus,
+    CASE
+    WHEN waiting='f' THEN
+    'already get lock,sql executing'
+    WHEN waiting='t' THEN
+    'waiting get lock,sql waiting execute'
+    END lock_satus, 
+	current_timestamp - least(query_start,xact_start) AS runtime,
+	cast(date_trunc('second',query_start) AS timestamp) AS query_start, substr(query,1,25) AS query
+FROM pg_locks LEFT OUTER
+JOIN pg_class
+    ON (pg_locks.relation = pg_class.oid) LEFT OUTER
+JOIN pg_namespace
+    ON (pg_namespace.oid = pg_class.relnamespace), pg_stat_activity
+WHERE NOT pg_locks.pid=pg_backend_pid()
+        AND pg_locks.pid=pg_stat_activity.pid
+        AND pg_class.relname='t' --此处进行替换
+ORDER BY  query_start;
+ 
+
+--查看PostgreSQL正在执行的SQL 
+SELECT 
+    procpid, 
+    start, 
+    now() - start AS lap, 
+    current_query 
+FROM 
+    (SELECT 
+        backendid, 
+        pg_stat_get_backend_pid(S.backendid) AS procpid, 
+        pg_stat_get_backend_activity_start(S.backendid) AS start, 
+       pg_stat_get_backend_activity(S.backendid) AS current_query 
+    FROM 
+        (SELECT pg_stat_get_backend_idset() AS backendid) AS S 
+    ) AS S ,pg_stat_activity pa
+WHERE 
+   current_query <> '<IDLE>' and  procpid<> pg_backend_pid() and pa.pid=s.procpid and pa.state<>'idle'
+ORDER BY 
+   lap DESC;
+ 
+procpid：进程id
+start：进程开始时间
+lap：经过时间
+current_query：执行中的sql
+怎样停止正在执行的sql
+SELECT pg_cancel_backend(进程id);
+或者用系统函数
+kill -9 进程id;
+ 
+
+--查找是否有waiting
+ps -ef|grep postgres | grep wait
+ 
+--查看当前库表和索引的的大小并排序显示前20条
+SELECT
+nspname,
+relname,
+relkind as "type",
+pg_size_pretty(pg_table_size(C.oid)) AS size,
+pg_size_pretty(pg_indexes_size(C.oid)) AS idxsize,
+pg_size_pretty(pg_total_relation_size(C.oid)) as "total"
+FROM pg_class C
+LEFT JOIN pg_namespace N ON (N.oid = C.relnamespace)
+WHERE nspname NOT IN ('pg_catalog', 'information_schema') AND
+nspname !~ '^pg_toast' AND
+relkind IN ('r','i')
+ORDER BY pg_total_relation_size(C.oid) DESC
+LIMIT 20;
