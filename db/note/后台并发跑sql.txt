@@ -1,0 +1,27 @@
+脚本测试：
+
+在当前shell 文件夹下mkdir log, 下面的 55100 是coordinator的端口号
+执行测试 sh  run.sh 
+文件 run.sh 
+for i in {1..10}
+do
+ sh 1.sh $i > log/$i.txt 2>&1  &
+done
+
+
+文件 1.sh 
+for i in {1..5000}
+do
+
+psql -p 55100 -d postgres <<EOF
+
+ insert into t$1 values(1);
+
+EOF
+done
+
+---------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
