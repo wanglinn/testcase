@@ -1,0 +1,117 @@
+load info.conf start
+load info.conf end
+ nodename |      nodetype      | status | description |     host     | port  | recovery 
+----------+--------------------+--------+-------------+--------------+-------+----------
+ cn1      | coordinator master | t      | running     | 127.0.0.1 | 55100 | false
+ dn1      | datanode master    | t      | running     | 127.0.0.1 | 55110 | false
+ dn1_1    | datanode slave     | t      | running     | 127.0.0.1 | 56110 | true
+ dn2      | datanode master    | t      | running     | 127.0.0.1 | 55120 | false
+ dn2_1    | datanode slave     | t      | running     | 127.0.0.1 | 56120 | true
+(5 rows)
+
+          type          | status |           message            
+------------------------+--------+------------------------------
+ coordinator master cn1 | t      | enable_readsql_on_slave = on
+(1 row)
+
+DROP TABLE
+NOTICE:  table "t2" does not exist, skipping
+DROP TABLE
+CREATE TABLE
+CREATE TABLE
+INSERT 0 10
+INSERT 0 10
+ id1 
+-----
+   1
+   2
+   3
+   4
+   5
+   6
+   7
+   8
+   9
+  10
+(10 rows)
+
+NOTICE:  127.0.0.1, pg_ctl  stop -D /home/wln/adbdata/cluster41/dn1 -Z datanode -m fast -o -i -w -c -W
+NOTICE:  127.0.0.1, pg_ctl  stop -D /home/wln/adbdata/cluster41/dn2 -Z datanode -m fast -o -i -w -c -W
+NOTICE:  waiting max 90 seconds for datanode master to stop ...
+
+ nodename | status | description 
+----------+--------+-------------
+ dn1      | t      | success
+ dn2      | t      | success
+(2 rows)
+
+ id1 
+-----
+   1
+   2
+   3
+   4
+   5
+   6
+   7
+   8
+   9
+  10
+(10 rows)
+
+ pg_sleep 
+----------
+ 
+(1 row)
+
+ pg_is_in_recovery 
+-------------------
+ f
+(1 row)
+
+ id1 | id2 
+-----+-----
+   7 |   7
+  10 |  10
+   8 |   8
+   9 |   9
+(4 rows)
+
+ id1 | id2 
+-----+-----
+   1 |   1
+   1 |   3
+   1 |   4
+   1 |   7
+   1 |  10
+   1 |   2
+   1 |   5
+   1 |   6
+   1 |   8
+   1 |   9
+(10 rows)
+
+NOTICE:  127.0.0.1, pg_ctl  start -D /home/wln/adbdata/cluster41/dn1 -Z datanode -o -i -w -c -W -l /home/wln/adbdata/cluster41/dn1/logfile
+NOTICE:  127.0.0.1, pg_ctl  start -D /home/wln/adbdata/cluster41/dn2 -Z datanode -o -i -w -c -W -l /home/wln/adbdata/cluster41/dn2/logfile
+NOTICE:  waiting max 90 seconds for datanode master to start ...
+
+ nodename | status | description 
+----------+--------+-------------
+ dn1      | t      | success
+ dn2      | t      | success
+(2 rows)
+
+ nodename |      nodetype      | status | description |     host     | port  | recovery 
+----------+--------------------+--------+-------------+--------------+-------+----------
+ cn1      | coordinator master | t      | running     | 127.0.0.1 | 55100 | false
+ dn1      | datanode master    | t      | running     | 127.0.0.1 | 55110 | false
+ dn1_1    | datanode slave     | t      | running     | 127.0.0.1 | 56110 | true
+ dn2      | datanode master    | t      | running     | 127.0.0.1 | 55120 | false
+ dn2_1    | datanode slave     | t      | running     | 127.0.0.1 | 56120 | true
+(5 rows)
+
+ERROR:  server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
+
+DROP TABLE
