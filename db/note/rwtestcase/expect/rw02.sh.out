@@ -1,12 +1,12 @@
 load info.conf start
 load info.conf end
- nodename |      nodetype      | status | description |     host     | port  | recovery 
-----------+--------------------+--------+-------------+--------------+-------+----------
- cn1      | coordinator master | t      | running     | 127.0.0.1 | 55100 | false
- dn1      | datanode master    | t      | running     | 127.0.0.1 | 55110 | false
- dn1_1    | datanode slave     | t      | running     | 127.0.0.1 | 56110 | true
- dn2      | datanode master    | t      | running     | 127.0.0.1 | 55120 | false
- dn2_1    | datanode slave     | t      | running     | 127.0.0.1 | 56120 | true
+ nodename |      nodetype      | status | description |     host     | port  | recovery |           boot time           
+----------+--------------------+--------+-------------+--------------+-------+----------+-------------------------------
+ cn1      | coordinator master | t      | running     | 10.1.226.202 | 55100 | false    | 2019-06-19 15:06:47.196019+08
+ dn1      | datanode master    | t      | running     | 10.1.226.202 | 55110 | false    | 2019-06-19 15:07:04.359178+08
+ dn1_1    | datanode slave     | t      | running     | 10.1.226.202 | 56110 | true     | 2019-06-19 15:06:49.321691+08
+ dn2      | datanode master    | t      | running     | 10.1.226.202 | 55120 | false    | 2019-06-19 15:07:04.384297+08
+ dn2_1    | datanode slave     | t      | running     | 10.1.226.202 | 56120 | true     | 2019-06-19 15:06:49.356371+08
 (5 rows)
 
           type          | status |           message            
@@ -14,8 +14,25 @@ load info.conf end
  coordinator master cn1 | t      | enable_readsql_on_slave = on
 (1 row)
 
+NOTICE:  table "t1" does not exist, skipping
 DROP TABLE
 NOTICE:  table "t2" does not exist, skipping
+DROP TABLE
+NOTICE:  table "t3" does not exist, skipping
+DROP TABLE
+CREATE TABLE
+CREATE TABLE
+INSERT 0 10
+INSERT 0 10
+INSERT 0 1
+ERROR:  Partition column can't be updated in current version
+DELETE 1
+TRUNCATE TABLE
+DROP TABLE
+INSERT 0 1
+ERROR:  Partition column can't be updated in current version
+DELETE 1
+TRUNCATE TABLE
 DROP TABLE
 CREATE TABLE
 CREATE TABLE
@@ -35,8 +52,10 @@ INSERT 0 10
   10
 (10 rows)
 
-NOTICE:  127.0.0.1, pg_ctl  stop -D /home/wln/adbdata/cluster41/dn1 -Z datanode -m fast -o -i -w -c -W
-NOTICE:  127.0.0.1, pg_ctl  stop -D /home/wln/adbdata/cluster41/dn2 -Z datanode -m fast -o -i -w -c -W
+INSERT 0 10
+DROP TABLE
+NOTICE:  10.1.226.202, pg_ctl  stop -D /home/wln/adbdata/cluster41/dn1 -Z datanode -m fast -o -i -w -c -W
+NOTICE:  10.1.226.202, pg_ctl  stop -D /home/wln/adbdata/cluster41/dn2 -Z datanode -m fast -o -i -w -c -W
 NOTICE:  waiting max 90 seconds for datanode master to stop ...
 
  nodename | status | description 
@@ -44,6 +63,17 @@ NOTICE:  waiting max 90 seconds for datanode master to stop ...
  dn1      | t      | success
  dn2      | t      | success
 (2 rows)
+
+WARNING:  datanode master dn1 recovery status is unknown
+WARNING:  datanode master dn2 recovery status is unknown
+ nodename |      nodetype      | status | description |     host     | port  | recovery |           boot time           
+----------+--------------------+--------+-------------+--------------+-------+----------+-------------------------------
+ cn1      | coordinator master | t      | running     | 10.1.226.202 | 55100 | false    | 2019-06-19 15:06:47.196019+08
+ dn1      | datanode master    | f      | not running | 10.1.226.202 | 55110 | unknown  | unknow
+ dn1_1    | datanode slave     | t      | running     | 10.1.226.202 | 56110 | true     | 2019-06-19 15:06:49.321691+08
+ dn2      | datanode master    | f      | not running | 10.1.226.202 | 55120 | unknown  | unknow
+ dn2_1    | datanode slave     | t      | running     | 10.1.226.202 | 56120 | true     | 2019-06-19 15:06:49.356371+08
+(5 rows)
 
  id1 
 -----
@@ -71,28 +101,56 @@ NOTICE:  waiting max 90 seconds for datanode master to stop ...
 
  id1 | id2 
 -----+-----
-   7 |   7
-  10 |  10
+   5 |   5
+   6 |   6
    8 |   8
    9 |   9
-(4 rows)
+  10 |  10
+(5 rows)
 
  id1 | id2 
 -----+-----
    1 |   1
+   1 |   2
    1 |   3
    1 |   4
-   1 |   7
-   1 |  10
-   1 |   2
    1 |   5
    1 |   6
+   1 |   7
    1 |   8
    1 |   9
+   1 |  10
 (10 rows)
 
-NOTICE:  127.0.0.1, pg_ctl  start -D /home/wln/adbdata/cluster41/dn1 -Z datanode -o -i -w -c -W -l /home/wln/adbdata/cluster41/dn1/logfile
-NOTICE:  127.0.0.1, pg_ctl  start -D /home/wln/adbdata/cluster41/dn2 -Z datanode -o -i -w -c -W -l /home/wln/adbdata/cluster41/dn2/logfile
+-- result fail
+ERROR:  server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
+
+-- result fail
+ERROR:  Partition column can't be updated in current version
+-- result fail
+ERROR:  server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
+
+-- result fail
+ERROR:  error message from poolmgr:reconnect three thimes , could not connect to server: Connection refused
+	Is the server running on host "10.1.226.202" and accepting
+	TCP/IP connections on port 55120?
+
+-- result fail
+ERROR:  error message from poolmgr:reconnect three thimes , could not connect to server: Connection refused
+	Is the server running on host "10.1.226.202" and accepting
+	TCP/IP connections on port 55120?
+
+-- result fail
+ERROR:  error message from poolmgr:reconnect three thimes , could not connect to server: Connection refused
+	Is the server running on host "10.1.226.202" and accepting
+	TCP/IP connections on port 55120?
+
+NOTICE:  10.1.226.202, pg_ctl  start -D /home/wln/adbdata/cluster41/dn1 -Z datanode -o -i -w -c -W -l /home/wln/adbdata/cluster41/dn1/logfile
+NOTICE:  10.1.226.202, pg_ctl  start -D /home/wln/adbdata/cluster41/dn2 -Z datanode -o -i -w -c -W -l /home/wln/adbdata/cluster41/dn2/logfile
 NOTICE:  waiting max 90 seconds for datanode master to start ...
 
  nodename | status | description 
@@ -101,17 +159,16 @@ NOTICE:  waiting max 90 seconds for datanode master to start ...
  dn2      | t      | success
 (2 rows)
 
- nodename |      nodetype      | status | description |     host     | port  | recovery 
-----------+--------------------+--------+-------------+--------------+-------+----------
- cn1      | coordinator master | t      | running     | 127.0.0.1 | 55100 | false
- dn1      | datanode master    | t      | running     | 127.0.0.1 | 55110 | false
- dn1_1    | datanode slave     | t      | running     | 127.0.0.1 | 56110 | true
- dn2      | datanode master    | t      | running     | 127.0.0.1 | 55120 | false
- dn2_1    | datanode slave     | t      | running     | 127.0.0.1 | 56120 | true
+ nodename |      nodetype      | status | description |     host     | port  | recovery |           boot time           
+----------+--------------------+--------+-------------+--------------+-------+----------+-------------------------------
+ cn1      | coordinator master | t      | running     | 10.1.226.202 | 55100 | false    | 2019-06-19 15:06:47.196019+08
+ dn1      | datanode master    | t      | running     | 10.1.226.202 | 55110 | false    | 2019-06-19 15:07:14.777244+08
+ dn1_1    | datanode slave     | t      | running     | 10.1.226.202 | 56110 | true     | 2019-06-19 15:06:49.321691+08
+ dn2      | datanode master    | t      | running     | 10.1.226.202 | 55120 | false    | 2019-06-19 15:07:14.825061+08
+ dn2_1    | datanode slave     | t      | running     | 10.1.226.202 | 56120 | true     | 2019-06-19 15:06:49.356371+08
 (5 rows)
 
-ERROR:  server closed the connection unexpectedly
-	This probably means the server terminated abnormally
-	before or while processing the request.
-
+DROP TABLE
+DROP TABLE
+NOTICE:  table "t3" does not exist, skipping
 DROP TABLE

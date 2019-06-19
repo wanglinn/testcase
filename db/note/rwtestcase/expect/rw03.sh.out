@@ -3,9 +3,9 @@ load info.conf end
  nodename |      nodetype      | status | description |     host     | port  | recovery |           boot time           
 ----------+--------------------+--------+-------------+--------------+-------+----------+-------------------------------
  cn1      | coordinator master | t      | running     | 10.1.226.202 | 55100 | false    | 2019-06-19 13:47:55.997922+08
- dn1      | datanode master    | t      | running     | 10.1.226.202 | 55110 | false    | 2019-06-19 14:30:23.149632+08
+ dn1      | datanode master    | t      | running     | 10.1.226.202 | 55110 | false    | 2019-06-19 14:36:07.008687+08
  dn1_1    | datanode slave     | t      | running     | 10.1.226.202 | 56110 | true     | 2019-06-19 13:47:57.208826+08
- dn2      | datanode master    | t      | running     | 10.1.226.202 | 55120 | false    | 2019-06-19 14:30:23.173759+08
+ dn2      | datanode master    | t      | running     | 10.1.226.202 | 55120 | false    | 2019-06-19 14:36:07.019776+08
  dn2_1    | datanode slave     | t      | running     | 10.1.226.202 | 56120 | true     | 2019-06-19 13:47:57.257206+08
 (5 rows)
 
@@ -18,15 +18,11 @@ NOTICE:  table "t1" does not exist, skipping
 DROP TABLE
 NOTICE:  table "t2" does not exist, skipping
 DROP TABLE
+NOTICE:  table "t3" does not exist, skipping
+DROP TABLE
 CREATE TABLE
 CREATE TABLE
 INSERT 0 10
-INSERT 0 10
- count 
--------
-    10
-(1 row)
-
 NOTICE:  10.1.226.202, pg_ctl  stop -D /home/wln/adbdata/cluster41/dn1 -Z datanode -m fast -o -i -w -c -W
 NOTICE:  10.1.226.202, pg_ctl  stop -D /home/wln/adbdata/cluster41/dn2 -Z datanode -m fast -o -i -w -c -W
 NOTICE:  waiting max 90 seconds for datanode master to stop ...
@@ -48,46 +44,6 @@ WARNING:  datanode master dn2 recovery status is unknown
  dn2_1    | datanode slave     | t      | running     | 10.1.226.202 | 56120 | true     | 2019-06-19 13:47:57.257206+08
 (5 rows)
 
- count 
--------
-    10
-(1 row)
-
--- result fail
-ERROR:  server closed the connection unexpectedly
-	This probably means the server terminated abnormally
-	before or while processing the request.
-
--- result fail
-ERROR:  error message from poolmgr:reconnect three thimes , could not connect to server: Connection refused
-	Is the server running on host "10.1.226.202" and accepting
-	TCP/IP connections on port 55120?
-
- count 
--------
-    10
-(1 row)
-
- count 
--------
-    10
-(1 row)
-
--- result fail
-ERROR:  error message from poolmgr:reconnect three thimes , could not connect to server: Connection refused
-	Is the server running on host "10.1.226.202" and accepting
-	TCP/IP connections on port 55120?
-
--- result fail
-ERROR:  error message from poolmgr:reconnect three thimes , could not connect to server: Connection refused
-	Is the server running on host "10.1.226.202" and accepting
-	TCP/IP connections on port 55120?
-
--- result fail
-ERROR:  error message from poolmgr:reconnect three thimes , could not connect to server: Connection refused
-	Is the server running on host "10.1.226.202" and accepting
-	TCP/IP connections on port 55120?
-
 NOTICE:  10.1.226.202, pg_ctl  start -D /home/wln/adbdata/cluster41/dn1 -Z datanode -o -i -w -c -W -l /home/wln/adbdata/cluster41/dn1/logfile
 NOTICE:  10.1.226.202, pg_ctl  start -D /home/wln/adbdata/cluster41/dn2 -Z datanode -o -i -w -c -W -l /home/wln/adbdata/cluster41/dn2/logfile
 NOTICE:  waiting max 90 seconds for datanode master to start ...
@@ -101,13 +57,17 @@ NOTICE:  waiting max 90 seconds for datanode master to start ...
  nodename |      nodetype      | status | description |     host     | port  | recovery |           boot time           
 ----------+--------------------+--------+-------------+--------------+-------+----------+-------------------------------
  cn1      | coordinator master | t      | running     | 10.1.226.202 | 55100 | false    | 2019-06-19 13:47:55.997922+08
- dn1      | datanode master    | t      | running     | 10.1.226.202 | 55110 | false    | 2019-06-19 14:31:31.244074+08
+ dn1      | datanode master    | t      | running     | 10.1.226.202 | 55110 | false    | 2019-06-19 14:37:16.180509+08
  dn1_1    | datanode slave     | t      | running     | 10.1.226.202 | 56110 | true     | 2019-06-19 13:47:57.208826+08
- dn2      | datanode master    | t      | running     | 10.1.226.202 | 55120 | false    | 2019-06-19 14:31:31.247496+08
+ dn2      | datanode master    | t      | running     | 10.1.226.202 | 55120 | false    | 2019-06-19 14:37:16.220638+08
  dn2_1    | datanode slave     | t      | running     | 10.1.226.202 | 56120 | true     | 2019-06-19 13:47:57.257206+08
 (5 rows)
 
+ERROR:  server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
+
+INSERT 0 0
 DROP TABLE
 DROP TABLE
-NOTICE:  table "t3" does not exist, skipping
 DROP TABLE
